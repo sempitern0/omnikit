@@ -132,7 +132,6 @@ static func quaternion_to_axis_angle(quaternion : Quaternion) -> Quaternion:
 
 	return axis_angle
 
-
 @warning_ignore("integer_division")
 static func integer_to_roman_number(number: int) -> String:
 	number = absi(number)

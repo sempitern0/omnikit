@@ -111,7 +111,10 @@ static func integer_to_ordinal(number: int) -> String:
 	return str(number) + suffix
 	
 	
-static func pretty_number(number: float, suffixes: Array[String] = ["", "K", "M", "B", "T"]) -> String:
+static func pretty_number(
+	number: float, 
+	suffixes: Array[String] = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De"]
+) -> String:
 	var prefix_sign = "-" if sign(number) == -1 else ""
 	
 	number = absf(number)
