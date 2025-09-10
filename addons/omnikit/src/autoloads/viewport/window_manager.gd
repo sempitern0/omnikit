@@ -233,7 +233,7 @@ func adapt_parallax_background_to_horizontal_viewport(parallax_background: Paral
 			var texture_size = sprite.texture.get_size()
 			sprite.scale = Vector2.ONE * (viewport.size.y / texture_size.y)
 			
-			parallax_layer.motion_mirroring = Vector2(texture_size.x * sprite.scale.x, 0)
+			parallax_layer.motion_mirroring.x = texture_size.x * sprite.scale.x
 		
 		
 func adapt_parallax_background_to_vertical_viewport(parallax_background: ParallaxBackground, viewport: Rect2 = get_window().get_visible_rect()) -> void:	
@@ -243,16 +243,16 @@ func adapt_parallax_background_to_vertical_viewport(parallax_background: Paralla
 			var texture_size = sprite.texture.get_size()
 			sprite.scale = Vector2.ONE * (viewport.size.x / texture_size.x)
 			
-			parallax_layer.motion_mirroring = Vector2(0, texture_size.y * sprite.scale.y)
+			parallax_layer.motion_mirroring.y = texture_size.y * sprite.scale.y
 
 
-func adapt_parallax_to_horizontal_viewport(parallax: Parallax2D, viewport: Rect2 = get_window().get_visible_rect()) -> void:	
+func adapt_parallax_to_horizontal_viewport(parallax: Parallax2D, viewport: Rect2 = get_window().get_visible_rect()) -> void:
 	if parallax.get_child(0) is Sprite2D:
 		var sprite: Sprite2D = parallax.get_child(0) as Sprite2D
 		var texture_size = sprite.texture.get_size()
 		sprite.scale = Vector2.ONE * (viewport.size.y / texture_size.y)
 		
-		parallax.repeat_size = Vector2(texture_size.x * sprite.scale.x, 0)
+		parallax.repeat_size.x = texture_size.x * sprite.scale.x
 	
 
 func adapt_parallax_to_vertical_viewport(parallax: Parallax2D, viewport: Rect2 = get_window().get_visible_rect()) -> void:	
@@ -261,7 +261,7 @@ func adapt_parallax_to_vertical_viewport(parallax: Parallax2D, viewport: Rect2 =
 		var texture_size = sprite.texture.get_size()
 		sprite.scale = Vector2.ONE * (viewport.size.x / texture_size.x)
 		
-		parallax.repeat_size = Vector2(0, texture_size.y * sprite.scale.y)
+		parallax.repeat_size.y = texture_size.y * sprite.scale.y
 #endregion
 
 
