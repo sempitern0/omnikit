@@ -33,6 +33,10 @@ func size() -> int:
 	return values.size()
 
 
+func is_empty() -> bool:
+	return values.is_empty()
+
+
 func equals(hashset: OmniKitHashSet) -> bool:
 	if values.size() != hashset.size():
 		return false
@@ -45,6 +49,22 @@ func equals(hashset: OmniKitHashSet) -> bool:
 			break
 	
 	return result
+
+
+func front() -> Variant:
+	return values.front()
+
+
+func back() -> Variant:
+	return values.back()
+	
+	
+func pop_back() -> Variant:
+	return values.pop_back()
+
+
+func pop_front() -> Variant:
+	return values.pop_front()
 
 
 func clear() -> void:
