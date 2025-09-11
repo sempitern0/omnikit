@@ -60,3 +60,18 @@ static func get_png_rect_from_texture(texture: Texture2D) -> Rect2i:
 	var size: Vector2i = Vector2i(right_position + roundi(position.x / 2.0),  top_position + roundi(position.y / 2.0))
 	
 	return Rect2i(position, size)
+
+
+func get_colors_from_image(image: Image) -> PackedColorArray:
+	var colors: OmniKitHashSet = OmniKitHashSet.new()
+	
+	for x in image.get_width():
+		for y in image.get_height():
+			var pixel_color: Color = image.get_pixel(x, y)
+			colors.add(Color(pixel_color.to_html()))
+	
+	return PackedColorArray(colors.values)
+	
+
+func get_colors_from_texture(texture: Texture2D) -> PackedColorArray:
+	return get_colors_from_image(texture.get_image())
