@@ -115,6 +115,15 @@ static func pretty_number(
 	number: float, 
 	suffixes: Array[String] = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De"]
 ) -> String:
+	var pretty: Dictionary = pretty_number_as_dict(number, suffixes)
+
+	return pretty.sign + pretty.number_str + pretty.suffix
+
+
+static func pretty_number_as_dict(
+	number: float, 
+	suffixes: Array[String] = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De"]
+) -> Dictionary:
 	var prefix_sign = "-" if sign(number) == -1 else ""
 	
 	number = absf(number)
@@ -125,10 +134,14 @@ static func pretty_number(
 		number /= 1000.0  # Divide by 1000 for each exponent level
 		exponent += 1
 
-	# Round to one decimal place using snapped
-	var formatted_number = str(snappedf(number, 0.001))
-
-	return prefix_sign + formatted_number + suffixes[exponent]
+	var formatted_number = snappedf(number, 0.001)
+	
+	return {
+		"sign": prefix_sign,
+		"number": formatted_number,
+		"number_str": str(formatted_number), # Round to one decimal place using snapped
+		"suffix": suffixes[exponent]
+	}
 
 
 static func to_binary_string(num: int) -> String:
