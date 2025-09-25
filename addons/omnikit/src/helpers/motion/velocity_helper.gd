@@ -16,7 +16,7 @@ static func current_speed_on(speed_unit: SpeedUnit, velocity) -> float:
 				return 0.0
 
 
-static func current_speed_on_miles_per_hour(velocity) -> float:
+static func current_speed_on_miles_per_hour(velocity: Variant) -> float:
 	if velocity is Vector2 or velocity is Vector2i:
 		return roundf(velocity.length() * OmniKitMathHelper.MetersPerSecondToMilePerHourFactor)
 	elif velocity is Vector3:
@@ -29,7 +29,7 @@ static func current_speed_on_miles_per_hour(velocity) -> float:
 		return 0.0
 
 
-static func current_speed_on_kilometers_per_hour(velocity) -> float:
+static func current_speed_on_kilometers_per_hour(velocity: Variant) -> float:
 	if velocity is Vector2 or velocity is Vector2i:
 		return roundf(velocity.length() * OmniKitMathHelper.MetersPerSecondToKilometersPerHourFactor)
 	elif velocity is Vector3:

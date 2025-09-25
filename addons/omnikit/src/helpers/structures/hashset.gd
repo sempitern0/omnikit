@@ -52,10 +52,16 @@ func equals(hashset: OmniKitHashSet) -> bool:
 
 
 func front() -> Variant:
+	if values.is_empty():
+		return null
+		
 	return values.front()
 
 
 func back() -> Variant:
+	if values.is_empty():
+		return null
+		
 	return values.back()
 	
 	

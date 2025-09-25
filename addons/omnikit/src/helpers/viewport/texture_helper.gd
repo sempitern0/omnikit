@@ -4,7 +4,8 @@ class_name OmniKitTextureHelper
 static func center_texture_rect_pivot(texture_rect: TextureRect) -> TextureRect:
 	if texture_rect.texture:
 		texture_rect.pivot_offset = (texture_rect.texture.get_size() / 2).ceil()
-	
+	else:
+		push_warning("OmniKitTextureHelper::center_texture_rect_pivot -> The texture rect %s does not have a texture" % texture_rect.name)
 	return texture_rect
 
 
@@ -31,7 +32,7 @@ static func get_sprite_dimensions(sprite: Sprite2D) -> Vector2:
 static func get_png_rect_from_texture(texture: Texture2D) -> Rect2i:
 	var image: Image = texture.get_image()
 	
-	assert(image !=null and image is Image, "OmniKitTextureHelper->get_png_rect_from_texture: The image from the texture is null, the texture it's invalid")
+	assert(image != null and image is Image, "OmniKitTextureHelper::get_png_rect_from_texture -> The image from the texture is null, the texture it's invalid")
 	
 	var top_position: int = image.get_height()
 	var bottom_position: int = 0
