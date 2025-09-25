@@ -48,6 +48,7 @@ func adjust_to_normal(normal: Vector3) -> void:
 	if fade_after > 0:
 		fade_out()
 
+
 func fade_out(time: float = fade_out_time) -> void:
 	var tween = create_tween()
 	tween.tween_interval(fade_after)

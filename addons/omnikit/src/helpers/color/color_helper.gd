@@ -22,7 +22,6 @@ static func get_palette(id: StringName) -> OmniKitColorPalette:
 	return null
 
 
-
 static func get_gradient(id: StringName) -> OmniKitColorGradient:
 	var regex = RegEx.new()
 	regex.compile(".tres$")
