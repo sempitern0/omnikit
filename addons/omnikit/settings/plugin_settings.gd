@@ -1,10 +1,10 @@
 @tool
 class_name OmniKitToolboxSettings extends RefCounted
 
-const PluginPrefixName: String = "sempitern0.indie_blueprint_toolbox" ## The folder name
+const PluginPrefixName: String = "omnikit" ## The folder name
 const GitRepositoryName: String = "omnikit"
 
-static var PluginName: String = "Indie Blueprint Toolbox"
+static var PluginName: String = "OmniKitToolbox"
 static var PluginProjectName: String = ProjectSettings.get_setting("application/config/name")
 static var PluginBasePath: String = "res://addons/%s" % PluginPrefixName
 static var PluginLocalConfigFilePath = "%s/plugin.cfg" % PluginBasePath
@@ -36,7 +36,7 @@ static var FontTypesSetting: String = PluginSettingsBasePath + "/font_types"
 static var DebugMode: bool = false
 
 
-static func setup_preloader_output_path(path: StringName = &"res://addons/sempitern0.indie_blueprint_toolbox/src") -> void:
+static func setup_preloader_output_path(path: StringName = &"res://addons/omnikit/src") -> void:
 	ProjectSettings.set_setting(OutputPreloaderPathSetting, path)
 	ProjectSettings.add_property_info({
 		"name": OutputPreloaderPathSetting,

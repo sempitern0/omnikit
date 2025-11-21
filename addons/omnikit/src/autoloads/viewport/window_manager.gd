@@ -6,8 +6,8 @@ extends Node
 # Mode: Canvas items
 
 ## Configuration for retro psx games
-# Viewport Size: 320x180 o 640x360 depending on the textures details you want
-# Aspect: Keep
+# Viewport Size: Render the 3D world in a SubViewport 320x180 or 640x360 depending on the textures details you want
+# Aspect: Keep Height
 # Mode: Viewport
 # Textures: Nearest
 
@@ -30,6 +30,8 @@ const AspectRatio4_3: Vector2i = Vector2i(4, 3)
 const AspectRatio16_9: Vector2i = Vector2i(16,9)
 const AspectRatio16_10: Vector2i = Vector2i(16, 10)
 const AspectRatio21_9: Vector2i = Vector2i(21, 9)
+
+signal size_changed
 
 var resolutions: Dictionary[StringName, Array] = {
 	Resolution_Mobile: [
@@ -107,7 +109,22 @@ enum DaltonismTypes {
 
 func _enter_tree() -> void:
 	get_tree().root.size_changed.connect(on_size_changed)
-	
+
+## To work as expected, make sure application/config/auto_accept_quit is false
+func quit_game(exit_code: int = 0, unpause_before_quit: bool = false) -> void:
+	## Note: On Web platform and iOS this method doesn't work. 
+	## On iOS instead, as recommended by the https://developer.apple.com/library/archive/qa/qa1561/_index.html.
+	## The user is expected to close apps via the Home button
+	if OmniKitHardwareDetector.is_ios() or OmniKitHardwareDetector.is_web():
+		OS.alert(tr("QUIT_GAME_INSTRUCTIONS"), tr("QUIT_GAME"))
+	else:
+		var tree: SceneTree = get_tree()
+		
+		if unpause_before_quit:
+			tree.paused = false
+			
+		tree.root.propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
+		get_tree().call_deferred("quit", exit_code)
 
 #region Resolution getters
 func get_mobile_resolutions(use_computer_screen_limit: bool = false) -> Array[Vector2i]:
@@ -157,10 +174,13 @@ func center_window_position(viewport: Viewport = get_viewport()) -> void:
 	
 	viewport.get_window().position = monitor_screen_center() - windowSize / 2
 
-## Current screen center of the viewport in the world forward or backward
-## always parallel to the ground
-func screen_center() -> Vector2i:
-	return screen_size() / 2
+
+func screen_center_2d(canvas: CanvasItem) -> Vector2:
+	return canvas.get_canvas_transform().affine_inverse() * screen_center()
+
+## Current screen center of the viewport in the world forward or backward always parallel to the ground
+func screen_center() -> Vector2:
+	return screen_size() / 2.0
 
 
 func screen_size() -> Vector2:
@@ -177,6 +197,31 @@ func monitor_screen_center() -> Vector2i:
 	return DisplayServer.screen_get_position() + DisplayServer.screen_get_size() / 2
 
 
+func screen_relative_mouse_position(viewport: Viewport = get_viewport()) -> Vector2:
+	var mouse_position: Vector2 = viewport.get_mouse_position()
+	var center: Vector2 = viewport.size / 2.0
+	var mouse_direction: Vector2 = mouse_position - center
+	
+	return mouse_direction / maxf(viewport.size.x, viewport.size.y)
+
+## This function is used to obtain the area of the screen where it is safe to place interactive content, 
+## such as user interface (UI) controls, so that they are not hidden or inaccessible
+## due to physical or software elements of the device.
+func get_mobile_safe_area(viewport: Viewport = get_viewport()) -> Rect2:
+	var viewport_size: Vector2 = viewport.get_visible_rect().size
+	
+	if not OmniKitHardwareDetector.is_mobile():
+		return Rect2(Vector2.ZERO, viewport_size)
+
+	var window_size: Vector2 = DisplayServer.window_get_size()
+	var scale_factor: Vector2 = viewport_size / window_size
+	var safe_area: Rect2 = DisplayServer.get_display_safe_area()
+	var safe_area_position: Vector2 = safe_area.position * scale_factor
+	var safe_area_size: Vector2 = safe_area.size * scale_factor
+	
+	return Rect2(safe_area_position, safe_area_size)
+
+
 func get_camera2d_frame(viewport: Viewport = get_viewport()) -> Rect2:
 	var camera_frame: Rect2 = viewport.get_visible_rect()
 	var camera: Camera2D = viewport.get_camera_2d()
@@ -186,18 +231,20 @@ func get_camera2d_frame(viewport: Viewport = get_viewport()) -> Rect2:
 		
 	return camera_frame
 	
-	
 #region Screenshot
 ## Recommended to call this method after await RenderingServer.frame_post_draw
 func screenshot(viewport: Viewport) -> Image:
-	var screenshot_image = viewport.get_texture().get_image()
+	var screenshot_image: Image = viewport.get_texture().get_image()
 	
-	assert(screenshot_image is Image, "OmniKitWindowManager::screenshot: The image output is null")
-
+	assert(screenshot_image != null, "OmniKitWindowManager::screenshot: The image output is null")
+	
+	screenshot_image.convert(Image.FORMAT_RGB8)
+	screenshot_image.fix_alpha_edges()
+	
 	return screenshot_image
 
 
-func screenshot_to_folder(folder: String = "%s/screenshots" % OS.get_user_data_dir(), viewport: Viewport = get_viewport()) -> Error:
+func screenshot_to_folder(viewport: Viewport = get_viewport(), folder: String = "%s/screenshots" % OS.get_user_data_dir()) -> Error:
 	var create_dir_error: Error = DirAccess.make_dir_recursive_absolute(folder)
 	
 	if create_dir_error != OK:
@@ -207,11 +254,14 @@ func screenshot_to_folder(folder: String = "%s/screenshots" % OS.get_user_data_d
 	await RenderingServer.frame_post_draw
 	
 	var screenshot_image: Image = screenshot(viewport)
-	var screenshot_save_error = screenshot_image.save_png("%s/%s.png" % [folder, Time.get_datetime_string_from_system().replace(":", "_")])
+	var screenshot_path: String = "%s/%s.png" % [folder, Time.get_datetime_string_from_system().replace(":", "_")]
+	var screenshot_save_error: Error = screenshot_image.save_png(screenshot_path)
 	
 	if screenshot_save_error != OK:
 		push_error("OmniKitWindowManager::screenshot_to_folder: Can't save screenshot image '%s'. Error: %s" % [folder, error_string(screenshot_save_error)])
-		
+	
+	print_rich("[b]OmniKitWindowManager::screenshot_to_folder:[/b] [color=green]Saved[/color] screenshot on path [color=yellow][i]%s[/i][/color]" % screenshot_path)
+
 	return screenshot_save_error
 
 ## Recommended to call this method after await RenderingServer.frame_post_draw
@@ -269,4 +319,5 @@ func adapt_parallax_to_vertical_viewport(parallax: Parallax2D, viewport: Rect2 =
 ## This callback center the screen when the display resolution is changed in-game
 func on_size_changed() -> void:
 	center_window_position()
+	size_changed.emit()
 #endregion

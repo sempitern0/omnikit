@@ -4,7 +4,7 @@ class_name OmniKitCollisionHelper
 @warning_ignore("narrowing_conversion")
 static func layer_to_value(layer: int) -> int:
 	if layer > 32:
-		push_error("CollisionHelper->layer_to_value: The specified collision layer (%d) is invalid. Please ensure the layer value is between 1 and 32" % layer)
+		push_error("OmniKitCollisionHelper->layer_to_value: The specified collision layer (%d) is invalid. Please ensure the layer value is between 1 and 32" % layer)
 	
 	return pow(2, clampi(layer, 1, 32) - 1)
 
@@ -17,6 +17,6 @@ static func value_to_layer(value: int) -> int:
 	if value > 0 and (value & (value - 1)) == 0:
 		return (log(value) / log(2)) + 1
 	
-	push_error("CollisionHelper->value_to_layer: The specified value %d) is invalid. Please ensure the value is a power of 2" % value)
+	push_error("OmniKitCollisionHelper->value_to_layer: The specified value %d) is invalid. Please ensure the value is a power of 2" % value)
 	
 	return 0

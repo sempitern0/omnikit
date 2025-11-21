@@ -6,8 +6,6 @@ signal connected_to_server()
 signal connection_failed_to_server()
 signal server_disconnected()
 
-var IpAddress: String = "localhost"
-var BroadcastAddress: String = "255.255.255.255"
 
 const DefaultServerPort: int = 42069
 const DefaultBroadcastPort: int = 42070
@@ -24,10 +22,13 @@ var peer: ENetMultiplayerPeer
 ## only works when testing different devices on the same LAN.
 var use_localhost: bool = true
 
+var current_ip_address: String
+var current_broadcast_address: String
+
 
 func _enter_tree() -> void:
-	IpAddress =  OmniKitNetworkHelper.get_local_ip()
-	BroadcastAddress = OmniKitNetworkHelper.get_broadcast_address(IpAddress)
+	current_ip_address =  OmniKitNetworkHelper.get_local_ip()
+	current_broadcast_address = OmniKitNetworkHelper.get_broadcast_address(OmniKitNetworkHelper.DefaultBroadcastAddress)
 
 
 func _exit_tree() -> void:
@@ -43,7 +44,7 @@ func start_server(port: int =  DefaultServerPort, max_players: int = 32) -> void
 	multiplayer.peer_disconnected.connect(on_client_disconnected)
 
 
-func start_client(ip: String = IpAddress, port: int = DefaultServerPort) -> void:
+func start_client(ip: String = OmniKitNetworkHelper.LocalHost, port: int = DefaultServerPort) -> void:
 	peer = ENetMultiplayerPeer.new()
 	peer.create_client(ip, port)
 	multiplayer.multiplayer_peer = peer
@@ -60,7 +61,7 @@ func start_broadcast(broadcast_port: int = DefaultBroadcastPort, dest_port: int 
 		
 	broadcaster = PacketPeerUDP.new()
 	broadcaster.set_broadcast_enabled(true)
-	broadcaster.set_dest_address(BroadcastAddress, dest_port)
+	broadcaster.set_dest_address(current_broadcast_address, dest_port)
 	var binded_port_error: Error =  broadcaster.bind(broadcast_port, bind_address)
 	
 	if binded_port_error == OK:

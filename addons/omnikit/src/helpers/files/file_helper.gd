@@ -19,14 +19,19 @@ static func directory_exist_on_executable_path(directory_path: String) -> bool:
 	return true
 	
 ## Supports RegEx expressions
-static func get_files_recursive(path: String, regex: RegEx = null) -> Array:
+static func get_files_recursive(path: String, regex: RegEx = null) -> Array[String]:
 	if path.is_empty() or not DirAccess.dir_exists_absolute(path):
 		push_error("OmniKitFileHelper>get_files_recursive: directory not found '%s'" % path)
 
 		return []
-
-	var files = []
+	
+	var files: Array[String] = []
 	var directory = DirAccess.open(path)
+	var error: Error = DirAccess.get_open_error()
+	
+	if error != OK:
+		push_error("OmniKitFileHelper->get_files_recursive: An error %d %s happened when loading files from directory %s" % [error, error_string(error), path])
+		return []
 	
 	if directory:
 		directory.list_dir_begin()
@@ -49,7 +54,6 @@ static func get_files_recursive(path: String, regex: RegEx = null) -> Array:
 		return files
 	else:
 		push_error("OmniKitFileHelper->get_files_recursive: An error %s occured when trying to open directory: %s" % [DirAccess.get_open_error(), path])
-		
 		return []
 
 
@@ -60,17 +64,17 @@ static func copy_directory_recursive(from_dir :String, to_dir :String) -> Error:
 		
 	if not DirAccess.dir_exists_absolute(to_dir):
 		
-		var err := DirAccess.make_dir_recursive_absolute(to_dir)
+		var err: Error = DirAccess.make_dir_recursive_absolute(to_dir)
 		if err != OK:
 			push_error("OmniKitFileHelper->copy_directory_recursive: Can't create directory '%s'. Error: %s" % [to_dir, error_string(err)])
 			return err
 			
-	var source_dir := DirAccess.open(from_dir)
-	var dest_dir := DirAccess.open(to_dir)
+	var source_dir: DirAccess = DirAccess.open(from_dir)
+	var dest_dir: DirAccess = DirAccess.open(to_dir)
 	
 	if source_dir != null:
 		source_dir.list_dir_begin()
-		var next := "."
+		var next: String = "."
 
 		while next != "":
 			next = source_dir.get_next()
@@ -83,7 +87,7 @@ static func copy_directory_recursive(from_dir :String, to_dir :String) -> Error:
 				copy_directory_recursive(source + "/", dest)
 				continue
 				
-			var err := source_dir.copy(source, dest)
+			var err: Error = source_dir.copy(source, dest)
 			
 			if err != OK:
 				push_error("OmniKitFileHelper->copy_directory_recursive: Error checked copy file '%s' to '%s'" % [source, dest])
@@ -158,3 +162,13 @@ static func get_shader_files(path: String) -> Array:
 	regex.compile(".gdshader$")
 	
 	return get_files_recursive(path, regex)
+	
+
+static func uid_to_file(uid: String) -> String:
+	if uid.begins_with("uid:"):
+		var id: int = ResourceUID.text_to_id(uid)
+		
+		if ResourceUID.has_id(id):
+			return ResourceUID.get_id_path(id)
+
+	return ""

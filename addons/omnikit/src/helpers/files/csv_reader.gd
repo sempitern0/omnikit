@@ -2,31 +2,31 @@ class_name OmniKitCSVReader
 
 
 ### CSV & TSV related ###
-static func read(path: String, as_dictionary := true):
-	var file_exists := FileAccess.file_exists(path)
+static func read(path: String, as_dictionary: bool = true) -> Variant:
+	var file_exists: bool = FileAccess.file_exists(path)
 
 	if not _filepath_is_valid(path) or not file_exists:
 		push_error("OmniKitCSVReader: Failed to load CSV because file doesn't exist or is corrupted. Path: %s", path)
 		return ERR_PARSE_ERROR
 		
-	var delimiter = _detect_limiter_from_file(path)
-	var lines := []
+	var delimiter: String = _detect_limiter_from_file(path)
+	var lines: Array[Variant] = []
 	
-	var file := FileAccess.open(path, FileAccess.READ)
-	var open_error := FileAccess.get_open_error()
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	var open_error: Error = FileAccess.get_open_error()
 	
 	if open_error != Error.OK:
 		push_error("OmniKitCSVReader: ERROR_CODE[%s] Error opening file %s" % [error_string(open_error), path])
 		return ERR_PARSE_ERROR
 
 	while not file.eof_reached():
-		var csv_line := file.get_csv_line(delimiter)
-		var is_last_line := csv_line.size() == 0 || (csv_line.size() == 1 && csv_line[0].is_empty())
+		var csv_line: PackedStringArray = file.get_csv_line(delimiter)
+		var is_last_line: bool = csv_line.size() == 0 || (csv_line.size() == 1 && csv_line[0].is_empty())
 		
 		if is_last_line:
 			continue
 		
-		var parsed_line := []
+		var parsed_line: Array[Variant] = []
 		
 		for field: String in csv_line:
 			if field.is_valid_int():
@@ -45,11 +45,11 @@ static func read(path: String, as_dictionary := true):
 		lines.pop_back()
 		
 	if as_dictionary and lines.size() > 1:
-		var result_as_array_of_dictionaries := []
+		var result_as_array_of_dictionaries: Array[Dictionary] = []
 		var column_headers = lines[0]
 		
 		for i in range(1, lines.size()):
-			var current_dict := {}
+			var current_dict: Dictionary = {}
 			var current_fields = lines[i]
 			
 			if current_fields.size() > column_headers.size():
@@ -71,7 +71,7 @@ static func _filepath_is_valid(path: String) -> bool:
 	
 	
 static func _detect_limiter_from_file(filename: String) -> String:
-	match filename.get_extension().to_lower():
+	match filename.get_extension().strip_edges().to_lower():
 		"csv":
 			return ","
 		"tsv":

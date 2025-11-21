@@ -39,23 +39,58 @@ static func has_fsr() -> bool:
 	return OS.has_feature("fsr")
 
 
+static func hostname() -> String:
+	if is_android():
+		var output: Array = []
+		OS.execute("getprop" , ["net.hostname"], output, false)
+		
+		if output.is_empty():
+			return ""
+		
+		return var_to_str(output)
+	
+	var environment_vars: Array[String] = ["COMPUTERNAME", "USERNAME", "USER"]
+	
+	for env_var: String in environment_vars:
+		if OS.has_environment(env_var):
+			return OS.get_environment(env_var)
+
+	return ""
+		
+		
 static func is_steam_deck() -> bool:
 	return OmniKitStringHelper.equals_ignore_case(distribution_name, "SteamOS") \
 		or video_adapter_name.containsn("radv vangogh") \
 		or OS.get_processor_name().containsn("amd custom apu 0405")
 
 
+static func is_web() -> bool:
+	return OS.has_feature("Web")
+
+
+static func is_android() -> bool:
+	return OS.get_name() == "Android"
+
+
+static func is_ios() -> bool:
+	return OS.get_name() == "iOS"
+	
+
 static func is_mobile() -> bool:
 	if not OS.has_feature("web"):
 		return false
 	
-	return OS.get_name() == "Android" or OS.get_name() == "iOS" \
+	return is_android() or is_ios() \
 		or (is_web() and OS.has_feature("web_android")) or (is_web() and OS.has_feature("web_ios")) \
 		or JavaScriptBridge.eval("/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)", true)
-		
 
+
+static func is_desktop() -> bool:
+	return is_windows() or is_linux() or is_mac()
+	
+	
 static func is_windows() -> bool:
-	return OS.get_name() == "Windows" or (is_web() and OS.has_feature("web_windows"))
+	return OS.get_name() in ["Windows", "UWP"] or (is_web() and OS.has_feature("web_windows"))
 
 
 static func is_linux() -> bool:
@@ -64,7 +99,3 @@ static func is_linux() -> bool:
 		
 static func is_mac() -> bool:
 	return OS.get_name() == "macOS" or (is_web() and OS.has_feature("web_macos"))
-
-
-static func is_web() -> bool:
-	return OS.has_feature("Web")

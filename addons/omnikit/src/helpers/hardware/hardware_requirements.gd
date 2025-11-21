@@ -245,7 +245,7 @@ static var graphics_quality_presets: Dictionary[QualityPreset, Array] = {
 		
 	],
 	QualityPreset.High: [
-		GraphicQualityDisplay.new("rendering/environment/glow_enabled", &"Glow", [false, true]),
+		GraphicQualityDisplay.new("rendering/environment/glow_enabled", &"Glow", [true, true]),
 		GraphicQualityDisplay.new("rendering/environment/screen_space_reflection", &"Screen Space Reflection", [true, RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_HIGH, 32]),
 		GraphicQualityDisplay.new("rendering/environment/sdfgi_enabled", &"SDFGI", [true, false]),
 		GraphicQualityDisplay.new("rendering/environment/ssil_enabled", &"SSIL", true),
@@ -262,7 +262,7 @@ static var graphics_quality_presets: Dictionary[QualityPreset, Array] = {
 		
 	],
 	QualityPreset.Ultra: [
-		GraphicQualityDisplay.new("rendering/environment/glow_enabled", &"Glow", [false, true]),
+		GraphicQualityDisplay.new("rendering/environment/glow_enabled", &"Glow", [true, true]),
 		GraphicQualityDisplay.new("rendering/environment/screen_space_reflection", &"Screen Space Reflection", [true, RenderingServer.ENV_SSR_ROUGHNESS_QUALITY_HIGH, 64]),
 		GraphicQualityDisplay.new("rendering/environment/sdfgi_enabled", &"SDFGI", [true, false]),
 		GraphicQualityDisplay.new("rendering/environment/ssil_enabled", &"SSIL", true),
@@ -335,7 +335,7 @@ static func apply_graphics_on_environment(world_environment: WorldEnvironment, q
 			"rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality":
 				RenderingServer.directional_soft_shadow_filter_set_quality(quality.value)
 			"rendering/lights_and_shadows/positional_shadow/soft_shadow_filter_quality":
-				RenderingServer.positional_soft_shadow_filter_set_quality(quality.vallue)
+				RenderingServer.positional_soft_shadow_filter_set_quality(quality.value)
 			"rendering/lights_and_shadows/positional_shadow/atlas_size":
 				RenderingServer.directional_shadow_atlas_set_size(quality.value, true)
 				viewport.positional_shadow_atlas_size = quality.value

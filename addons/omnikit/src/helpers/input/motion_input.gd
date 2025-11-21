@@ -59,6 +59,7 @@ var previous_world_coordinate_space_direction: Vector3
 
 var current_device_id: int = 0
 
+
 func _init(_actor: Node3D = null, _deadzone: float = deadzone):
 	if _actor == null:
 		push_warning("OmniKitMotionInput: The actor as Node3D is not set, the world_coordinate_space_direction will return Vector3.ZERO when retrieved")
@@ -86,13 +87,14 @@ func update():
 	input_direction_vertical_axis = Input.get_axis(move_forward_action, move_back_action)
 	input_axis_as_vector = _input_axis_as_vector()
 	
-	input_right_motion_horizontal_axis = Input.get_axis(left_motion_action, right_motion_action)
-	input_right_motion_vertical_axis = Input.get_axis(up_motion_action, down_motion_action)
-	input_right_motion_axis_as_vector = Vector2(input_right_motion_horizontal_axis, input_right_motion_vertical_axis)
-	input_right_motion_as_vector = get_right_joystick_input()
-	
-	_calculate_joystick_movement()
-	
+	if current_device_id != 0:
+		input_right_motion_horizontal_axis = Input.get_axis(left_motion_action, right_motion_action)
+		input_right_motion_vertical_axis = Input.get_axis(up_motion_action, down_motion_action)
+		input_right_motion_axis_as_vector = Vector2(input_right_motion_horizontal_axis, input_right_motion_vertical_axis)
+		input_right_motion_as_vector = get_right_joystick_input()
+		
+		_calculate_joystick_movement()
+		
 	input_direction_horizontal_axis_applied_deadzone = input_direction_horizontal_axis * (1.0 - deadzone)
 	input_direction_vertical_axis_applied_deadzone = input_direction_vertical_axis * (1.0 - deadzone)
 

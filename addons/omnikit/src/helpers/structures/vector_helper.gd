@@ -1,14 +1,14 @@
 class_name OmniKitVectorHelper
 
-static var directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
-static var horizontal_directions_v2: Array[Vector2] = [Vector2.LEFT, Vector2.RIGHT]
-static var vertical_directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN]
+const directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
+const horizontal_directions_v2: Array[Vector2] = [Vector2.LEFT, Vector2.RIGHT]
+const vertical_directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN]
 
-static var directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2.RIGHT]
-static var horizontal_directions_v2i: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT]
-static var vertical_directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN]
+const directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2.RIGHT]
+const horizontal_directions_v2i: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT]
+const vertical_directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN]
 
-static var directions_v3: Array[Vector3] = [
+const directions_v3: Array[Vector3] = [
 	Vector3.UP,
 	Vector3.DOWN,
 	Vector3.FORWARD,
@@ -17,7 +17,7 @@ static var directions_v3: Array[Vector3] = [
 	Vector3.RIGHT
 ]
 
-static var directions_v3i: Array[Vector3] = [
+const directions_v3i: Array[Vector3] = [
 	Vector3i.UP,
 	Vector3i.DOWN,
 	Vector3i.FORWARD,
@@ -26,7 +26,7 @@ static var directions_v3i: Array[Vector3] = [
 	Vector3i.RIGHT
 ]
 
-static var opposite_directions_v2: Dictionary = {
+const opposite_directions_v2: Dictionary = {
 	Vector2.UP: Vector2.DOWN,
 	Vector2.DOWN: Vector2.UP,
 	Vector2.RIGHT: Vector2.LEFT,
@@ -34,7 +34,7 @@ static var opposite_directions_v2: Dictionary = {
 }
 
 
-static var opposite_directions_v2i: Dictionary = {
+const opposite_directions_v2i: Dictionary = {
 	Vector2i.UP: Vector2i.DOWN,
 	Vector2i.DOWN: Vector2i.UP,
 	Vector2i.RIGHT: Vector2i.LEFT,
@@ -42,7 +42,7 @@ static var opposite_directions_v2i: Dictionary = {
 }
 
 
-static var opposite_directions_v3: Dictionary = {
+const opposite_directions_v3: Dictionary = {
   	Vector3.UP: Vector3.DOWN,
 	Vector3.DOWN: Vector3.UP,
 	Vector3.RIGHT: Vector3.LEFT, 
@@ -52,7 +52,7 @@ static var opposite_directions_v3: Dictionary = {
 }
 
 
-static var opposite_directions_v3i: Dictionary = {
+const opposite_directions_v3i: Dictionary = {
   	Vector3i.UP: Vector3i.DOWN,
 	Vector3i.DOWN: Vector3i.UP,
 	Vector3i.RIGHT: Vector3i.LEFT, 

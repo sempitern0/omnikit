@@ -27,6 +27,13 @@ func _init(hitscan_result: Dictionary) -> void:
 func collided() -> bool:
 	return collider != null
 	
+
+func projection(origin: Vector3, to: Vector3 = position, distance: float = 100.0) -> Vector3:
+	if normal.is_zero_approx():
+		return origin.direction_to(to) * distance
+	
+	return origin * normal * distance
+	
 	
 func as_dict() -> Dictionary:
 	return {

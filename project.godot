@@ -22,6 +22,7 @@ IndieBlueprintWindowManager="*res://addons/omnikit/src/autoloads/viewport/window
 IndieBlueprintLocalNetworkHandler="*res://addons/omnikit/src/autoloads/network/local_network_handler.gd"
 OmniKitWindowManager="*res://addons/omnikit/src/autoloads/viewport/window_manager.gd"
 OmniKitLocalNetworkHandler="*res://addons/omnikit/src/autoloads/network/local_network_handler.gd"
+OmniKitGamepadControllerManager="*res://addons/omnikit/src/autoloads/gamepad/gamepad_controller_manager.gd"
 
 [editor_plugins]
 

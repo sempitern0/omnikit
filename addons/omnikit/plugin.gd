@@ -8,48 +8,8 @@ var mutex: Mutex
 func _enter_tree() -> void:
 	add_autoload_singleton("OmniKitWindowManager", "src/autoloads/viewport/window_manager.gd")
 	add_autoload_singleton("OmniKitLocalNetworkHandler", "src/autoloads/network/local_network_handler.gd")
+	add_autoload_singleton("OmniKitGamepadControllerManager", "src/autoloads/gamepad/gamepad_controller_manager.gd")
 	
-	add_custom_type(
-		"OmniKitSmartDecal", 
-		"Decal", 
-		preload("src/components/3D/decals/smart_decal.gd"),
-		null
-	)
-	
-	add_custom_type(
-		"OmniKitDraggable2D", 
-		"Node2D", 
-		preload("src/components/2D/drag/draggable_2d.gd"),
-		preload("src/components/2D/drag/draggable_2d.svg")
-	)
-	
-	add_custom_type(
-		"OmniKitOrbitComponent2D", 
-		"Node2D", 
-		preload("src/components/2D/motion/orbit/orbit.gd"),
-		preload("src/components/2D/motion/orbit/orbit.svg")
-	)
-	
-	add_custom_type(
-		"OmniKitRotatorComponent2D", 
-		"Node2D", 
-		preload("src/components/2D/motion/rotation/rotator.gd"),
-		preload("src/components/2D/motion/rotation/rotator.svg")
-	)
-	
-	add_custom_type(
-		"OmniKitSwingComponent2D", 
-		"Node2D", 
-		preload("src/components/2D/motion/swing/swing.gd"),
-		preload("src/components/2D/motion/swing/swing.svg")
-	)
-	
-	add_custom_type(
-		"OmniKitFollowComponent2D", 
-		"Node2D", 
-		preload("src/components/2D/motion/follow/follow.gd"),
-		preload("src/components/2D/motion/follow/follow.svg")
-	)
 	
 	OmniKitToolboxSettings.setup_preloader_output_path()
 	OmniKitToolboxSettings.setup_preloader_classname()
@@ -96,13 +56,7 @@ func _exit_tree() -> void:
 		
 	preloader_timer = null
 	
-	remove_custom_type("OmniKitFollowComponent2D")
-	remove_custom_type("OmniKitSwingComponent2D")
-	remove_custom_type("OmniKitRotatorComponent2D")
-	remove_custom_type("OmniKitOrbitComponent2D")
-	remove_custom_type("OmniKitDraggable2D")
-	remove_custom_type("OmniKitSmartDecal")
-	
+	remove_autoload_singleton("OmniKitGamepadControllerManager")
 	remove_autoload_singleton("OmniKitWindowManager")
 	remove_autoload_singleton("OmniKitLocalNetworkHandler")
 

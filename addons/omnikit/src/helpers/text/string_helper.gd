@@ -5,7 +5,7 @@ const AsciiLetters: String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX
 const AsciiLowercase: String = "abcdefghijklmnopqrstuvwxyz"
 const AsciiUppercase: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const AsciiDigits: String = "0123456789"
-const AsciiHexdigits: String = "0123456789ABCDEF"
+const AsciiHexDigits: String = "0123456789ABCDEF"
 const AsciiPunctuation: String =  "!\"#$%&'()*+, -./:;<=>?@[\\]^_`{|}~"
 const bar: String = "█"
 

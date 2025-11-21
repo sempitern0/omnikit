@@ -13,13 +13,13 @@ func _init(_repository: OmniKitNameRepository) -> void:
 		surnames_bag = OmniKitShuffleBag.new(repository.surnames)
 	
 
-func generate() -> String:
+func generate(include_surname: bool = true) -> String:
 	var result: String = ""
 	
 	if repository.names.size():
 		result += generate_name()
 		
-	if repository.surnames.size():
+	if include_surname and repository.surnames.size():
 		result += " %s" % generate_surname()
 	
 	return result

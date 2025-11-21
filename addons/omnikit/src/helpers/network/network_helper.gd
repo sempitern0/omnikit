@@ -1,6 +1,68 @@
 class_name OmniKitNetworkHelper
 
 
+const DefaultDNSPort: int = 53
+const GoogleHost: String = "8.8.8.8"
+const CloudFlareHost: String = "1.1.1.1"
+const LocalHost: String = "127.0.0.1"
+const DefaultBroadcastAddress: String = "255.255.255.255"
+const DefaultPingHosts: Array[String] = [GoogleHost, CloudFlareHost]
+const DefaultPingURLs: Array[String] = [
+		"https://www.google.com/generate_204",
+		"https://www.cloudflare.com/cdn-cgi/trace",
+		"https://example.com"
+]
+
+## TODO - SEE A WAY TO IMPLEMENT THIS FUNCTION INSIDE A _PROCESS MORE READABLE
+#static var internet_connection_status_socket: StreamPeerTCP = StreamPeerTCP.new()
+#
+#
+#static func has_internet_connection(selected_hosts: Array[String] = DefaultPingHosts) -> bool:
+	#if internet_connection_status_socket == null:
+		#internet_connection_status_socket = StreamPeerTCP.new()
+	#
+	#internet_connection_status_socket.set_no_delay(true)
+	#
+	#var has_connection: bool = false
+	#var pending_hosts_to_check: Array[String] = selected_hosts.duplicate()
+	#
+	#while pending_hosts_to_check.size() > 0 and not has_connection:
+		#if internet_connection_status_socket.connect_to_host(pending_hosts_to_check.pop_front(), DefaultDNSPort) == OK:
+			#internet_connection_status_socket.poll()
+			#
+			#if internet_connection_status_socket.get_status() == StreamPeerTCP.STATUS_CONNECTED:
+				#has_connection = true
+				#break
+			#
+			#internet_connection_status_socket.disconnect_from_host()
+#
+	#return has_connection
+
+## Needs a node to add the HttpRequest in the SceneTree as this function is static
+## Example: await OmniKitNetworkHelper.ping(self)
+static func ping(node: Node, urls: Array[String] = DefaultPingURLs) -> bool:
+	var http_request: HTTPRequest = HTTPRequest.new()
+	## Used Array as GDScript pass them as reference on parameters, so it can be mutated inside the closure
+	var internet_connection: Array[bool] = [false] 
+	
+	node.add_child(http_request)
+	
+	for url: String in urls.filter(func(ping_url: String): return is_valid_url(ping_url)):
+		if internet_connection[0]:
+			break
+			
+		var result: Error = http_request.request(url)
+		http_request.request_completed.connect(
+			func(_result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray):
+				internet_connection[0] = (result == Error.OK and response_code in [200, 204])
+				,CONNECT_ONE_SHOT)
+		await http_request.request_completed
+	
+	http_request.queue_free()
+	
+	return internet_connection[0]
+
+	
 static func validate_ipv4(ip: String) -> bool:
 	var ipv4_regex: RegEx = RegEx.new()
 	
@@ -40,12 +102,12 @@ static func get_local_ips() -> Array[String]:
 static func get_local_ip(ip_type: IP.Type = IP.Type.TYPE_IPV4) -> String:
 	var local_ips: Array[String] = get_local_ips()
 	
-	return "127.0.0.1" if local_ips.is_empty() else local_ips.front()
+	return LocalHost if local_ips.is_empty() else local_ips.front()
 
 
 static func get_broadcast_address(local_ip: String, use_localhost: bool = false) -> String:
 	if use_localhost:
-		return "127.0.0.1"
+		return LocalHost
 	elif local_ip.begins_with("192.168."):
 		return "192.168.1.255"
 	elif local_ip.begins_with("10."):
@@ -53,7 +115,7 @@ static func get_broadcast_address(local_ip: String, use_localhost: bool = false)
 	elif local_ip.begins_with("172."):
 		return "172.20.255.255"
 	else:
-		return "127.0.0.1" if use_localhost else "255.255.255.255"
+		return LocalHost if use_localhost else DefaultBroadcastAddress
 	
 
 static func is_valid_url(url: String) -> bool:

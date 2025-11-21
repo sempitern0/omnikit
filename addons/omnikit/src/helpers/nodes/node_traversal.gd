@@ -175,3 +175,19 @@ static func get_absolute_z_index(node: Node2D) -> int:
 		node = node.get_parent()
 		
 	return z
+
+
+static func create_scene_from(root_node: Node) -> PackedScene:
+	if is_instance_valid(root_node) and root_node.is_inside_tree():
+		var scene: PackedScene = PackedScene.new()
+		
+		for child: Node in get_all_children(root_node):
+			child.owner = root_node
+			
+		scene.pack(root_node)
+	
+		return scene
+	
+	push_error("OmniKitNodeTraversal->create_scene_from: The root_node %s is not a valid instance or not is inside the scene tree, aborting..." % str(root_node))
+	
+	return null

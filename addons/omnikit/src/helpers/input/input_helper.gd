@@ -150,10 +150,50 @@ static func numeric_key_pressed(event: InputEvent) -> bool:
 	return event is InputEventKey and event.pressed && (numeric_keys.has(int(event.keycode)) || numeric_keys.has(int(event.physical_keycode)) )
 
 
-static func readable_key(key: InputEventKey):
-	var key_with_modifiers: Key = key.get_physical_keycode_with_modifiers() if key.keycode == KEY_NONE else key.get_keycode_with_modifiers()
+static func readable_key(key: InputEvent) -> String:
+	if key is InputEventKey:
+		var key_with_modifiers: Key
+		
+		if key.keycode == KEY_NONE:
+			key_with_modifiers = key.get_physical_keycode_with_modifiers()
+		else:
+			key_with_modifiers = key.get_keycode_with_modifiers()
 
-	return OS.get_keycode_string(key_with_modifiers).replace("+", "+ ")
+		return OS.get_keycode_string(key_with_modifiers).replace("+", "+ ")
+	
+	elif key is InputEventMouseButton:
+			match(key.button_index):
+				MOUSE_BUTTON_LEFT:
+					return "LMB"
+				MOUSE_BUTTON_RIGHT:
+					return "RMB"
+				MOUSE_BUTTON_MIDDLE:
+					return "MMB"
+				MOUSE_BUTTON_WHEEL_DOWN:
+					return "WheelDown"
+				MOUSE_BUTTON_WHEEL_UP:
+					return "WheelUp"
+				MOUSE_BUTTON_WHEEL_RIGHT:
+					return "WheelRight"
+				MOUSE_BUTTON_WHEEL_LEFT:
+					return "WheelLeft"
+					
+	elif key is InputEventJoypadMotion:
+			match(key.axis):
+				JOY_AXIS_LEFT_X:
+					return "Left Stick %s" % "Left" if key.axis_value < 0 else "Right"
+				JOY_AXIS_LEFT_Y:
+					return "Left Stick %s" % "Up" if key.axis_value < 0 else "Down"
+				JOY_AXIS_RIGHT_X:
+					return "Right Stick %s" % "Left" if key.axis_value < 0 else "Right"
+				JOY_AXIS_RIGHT_Y:
+					return "Right Stick %s" % "Up" if key.axis_value < 0 else "Down"
+				JOY_AXIS_TRIGGER_LEFT:
+					return "Left Trigger"
+				JOY_AXIS_TRIGGER_RIGHT:
+					return "Right trigger"
+	
+	return ""
 
 
 static func action_just_pressed_and_exists(action: String) -> bool:

@@ -1,6 +1,18 @@
 class_name OmniKitArrayHelper
 
 
+static func only_has_numbers(array: Array[Variant]) -> bool:
+	if array.is_empty():
+		return false
+		
+	return array.all(func(value: Variant) -> bool:
+		if typeof(value) in [TYPE_STRING, TYPE_STRING_NAME]:
+			return value.is_valid_int() or value.is_valid_float()
+			
+		return typeof(value) in [TYPE_INT, TYPE_FLOAT]
+	)
+	
+	
 static func sum(values: Array[int]) -> int:
 	var result: int = 0
 

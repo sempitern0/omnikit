@@ -56,16 +56,20 @@ static func rotate_toward_direction_v3(node: Node3D, direction: Vector3, smooth_
 static func rotate_toward_mouse_v3(node: Node3D) -> void:
 	var camera: Camera3D = node.get_viewport().get_camera_3d()
 	
-	var mouse: Vector2= node.get_viewport().get_mouse_position()
+	var mouse: Vector2 = node.get_viewport().get_mouse_position()
 	var origin: Vector3 = camera.project_ray_origin(mouse)
 	var direction: Vector3 = camera.project_ray_normal(mouse)
 
 	if direction.y != 0:
-		var distance: float= -origin.y / direction.y
+		var distance: float = -origin.y / direction.y
 		var target_position: Vector3 = origin + direction * distance
 		
 		node.look_at(Vector3(target_position.x, node.global_position.y, target_position.z))
-	
+
+
+static func node_viewport_center_position(node: CanvasItem) -> Vector2:
+	return (node.get_viewport().get_visible_rect().size / 2.0) - node.size / 2
+
 
 static func align_nodes_v2(from: Node2D, to: Node2D, align_position: bool = true, align_rotation: bool = true) -> void:
 	var original_parent = from.get_parent()
@@ -94,9 +98,9 @@ static func align_nodes_v3(from: Node3D, to: Node3D, align_position: bool = true
 
 
 static func get_nearest_node_by_distance_v2(from: Vector2, nodes: Array = [], min_distance: float = 0.0, max_range: float = 9999) -> Dictionary:
-	var result := {"target": null, "distance": null}
+	var result: Dictionary = {"target": null, "distance": null}
 	
-	for node in nodes.filter(func(node): return node is Node2D): ## Only allows node that can use global_position in the world
+	for node: Node2D in nodes.filter(func(node): return node is Node2D): ## Only allows node that can use global_position in the world
 		var distance_to_target: float = node.global_position.distance_to(from)
 		
 		if OmniKitMathHelper.decimal_value_is_between(distance_to_target, min_distance, max_range) and (result.target == null or (distance_to_target < result.distance)):
@@ -116,9 +120,9 @@ static func get_nearest_nodes_sorted_by_distance_v2(from: Vector2, nodes: Array 
 
 
 static func get_farthest_node_by_distance_v2(from: Vector2, nodes: Array = [], min_distance: float = 0.0, max_range: float = 9999) -> Dictionary:
-	var farthest := {"target": null, "distance": 0.0}
+	var farthest: Dictionary = {"target": null, "distance": 0.0}
 	
-	for node in nodes.filter(func(node): return node is Node2D): ## Only allows node that can use global_position in the world
+	for node: Node2D in nodes.filter(func(node): return node is Node2D): ## Only allows node that can use global_position in the world
 		var distance_to_target: float = node.global_position.distance_to(from)
 		
 		if OmniKitMathHelper.decimal_value_is_between(distance_to_target, min_distance, max_range) and (farthest.target == null or (distance_to_target > farthest.distance)):
@@ -129,9 +133,9 @@ static func get_farthest_node_by_distance_v2(from: Vector2, nodes: Array = [], m
 	
 
 static func get_nearest_node_by_distance_v3(from: Vector3, nodes: Array = [], min_distance: float = 0.0, max_range: float = 9999) -> Dictionary:
-	var result := {"target": null, "distance": null}
+	var result: Dictionary = {"target": null, "distance": null}
 	
-	for node in nodes.filter(func(node): return node is Node3D): ## Only allows node that can use global_position in the world
+	for node: Node3D in nodes.filter(func(node): return node is Node3D): ## Only allows node that can use global_position in the world
 		var distance_to_target: float = node.global_position.distance_to(from)
 		
 		if OmniKitMathHelper.decimal_value_is_between(distance_to_target, min_distance, max_range) and (result.target == null or (distance_to_target < result.distance)):
@@ -151,9 +155,9 @@ static func get_nearest_nodes_sorted_by_distance_v3(from: Vector3, nodes: Array 
 
 
 static func get_farthest_node_by_distance_v3(from: Vector3, nodes: Array = [], min_distance: float = 0.0, max_range: float = 9999) -> Dictionary:
-	var farthest := {"target": null, "distance": 0.0}
+	var farthest: Dictionary = {"target": null, "distance": 0.0}
 	
-	for node in nodes.filter(func(node): return node is Node3D): ## Only allows node that can use global_position in the world
+	for node: Node3D in nodes.filter(func(node): return node is Node3D): ## Only allows node that can use global_position in the world
 		var distance_to_target: float = node.global_position.distance_to(from)
 		
 		if OmniKitMathHelper.decimal_value_is_between(distance_to_target, min_distance, max_range) and (farthest.target == null or (distance_to_target > farthest.distance)):

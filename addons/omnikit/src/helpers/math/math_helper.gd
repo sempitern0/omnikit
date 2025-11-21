@@ -400,7 +400,15 @@ static func generate_random_seed(seed_range: int = 10) -> String:
 	randomize()
 	var random_seed: String = ""
 	
-	for index in range(seed_range):
+	for index: int in range(seed_range):
 		random_seed += char(int(randi_range(40, 127)))
 		
-	return(random_seed)
+	return random_seed
+
+## Generates a Cryptographically Secure Nonce (Number Used Once).
+# It uses the Crypto module to generate by default 16 bytes (128 bits) of
+# cryptographically secure random data. The value is then hex-encoded.
+# **Primary Purpose:** To prevent replay attacks in network and
+# authentication protocols by ensuring that every submitted message is unique.
+static func generate_nonce(bytes: int = 16) -> String:
+	return Crypto.new().generate_random_bytes(bytes).hex_encode()
