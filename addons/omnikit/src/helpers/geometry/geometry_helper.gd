@@ -18,13 +18,13 @@ static func get_random_mesh_surface_position(target: MeshInstance3D) -> Vector3:
 
 
 static func random_inside_unit_circle(position: Vector2, radius: float = 1.0) -> Vector2:
-	var angle := randf() * 2.0 * PI
+	var angle: float = randf() * 2.0 * PI
 	return position + Vector2(cos(angle), sin(angle)) * radius
 
 
 static func random_on_unit_circle(position: Vector2) -> Vector2:
-	var angle := randf() * 2.0 * PI
-	var radius := randf()
+	var angle: float = randf() * 2.0 * PI
+	var radius: float = randf()
 	
 	return position + radius * Vector2(cos(angle), sin(angle))
 
@@ -32,18 +32,15 @@ static func random_on_unit_circle(position: Vector2) -> Vector2:
 static func random_point_in_rect(rect: Rect2) -> Vector2:
 	randomize()
 	
-	var x = randf()
-	var y = randf()
+	var x: float = randf()
+	var y: float = randf()
 	
-	var x_dist = rect.size.x * x
-	var y_dist = rect.size.y * y
-	
-	return Vector2(x_dist, y_dist)
+	return Vector2(rect.size.x * x, rect.size.y * y)
 
 ## Two concentric circles (donut basically)
 static func random_point_in_annulus(center, radius_small, radius_large) -> Vector2:
-	var square = Rect2(center - Vector2(radius_large, radius_large), Vector2(radius_large * 2, radius_large * 2))
-	var point = null
+	var square: Rect2 = Rect2(center - Vector2(radius_large, radius_large), Vector2(radius_large * 2, radius_large * 2))
+	var point: Vector2 = Vector2.INF
 	
 	while not point:
 		var test_point = random_point_in_rect(square)
@@ -56,8 +53,8 @@ static func random_point_in_annulus(center, radius_small, radius_large) -> Vecto
 
 	
 static func polygon_bounding_box(polygon: PackedVector2Array) -> Rect2:
-	var min_vec = Vector2.INF
-	var max_vec = -Vector2.INF
+	var min_vec: Vector2 = Vector2.INF
+	var max_vec: Vector2 = -Vector2.INF
 	
 	for vec: Vector2 in polygon:
 		min_vec = Vector2(min(min_vec.x, vec.x), min(min_vec.y, vec.y))
@@ -114,7 +111,6 @@ static func create_cilinder_mesh(height: float = 2.0, top_radius: float = 0.5, b
 	return mesh
 	
 
-	
 static func create_sphere_mesh(height: float = 2.0, radius: float = 0.5, is_hemisphere: bool = false) -> MeshInstance3D:
 	var mesh = MeshInstance3D.new()
 	var cylinder = SphereMesh.new()
@@ -170,7 +166,7 @@ static func calculate_polygon_area(polygon: PackedVector2Array) -> float:
 		
 		area += current.x * next.y - current.y * next.x
 		
-	return abs(area) / 2.0
+	return absf(area) / 2.0
 
 
 static func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array:
@@ -181,7 +177,7 @@ static func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array:
 	for i in range(0, trianglies.size(), 3):
 		chunks.append(trianglies.slice(i, i + 3))
 
-	for n in chunks:
+	for n: Array in chunks:
 		var triangle_points: PackedVector2Array
 		
 		for point in n:

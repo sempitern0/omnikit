@@ -10,13 +10,16 @@ static func dirpath_is_valid(path: String) -> bool:
 
 
 static func directory_exist_on_executable_path(directory_path: String) -> bool:
-	var real_path = OS.get_executable_path().get_base_dir().path_join(directory_path)
-	var directory = DirAccess.open(real_path)
+	var real_path: String = OS.get_executable_path().get_base_dir().path_join(directory_path)
+	var directory: DirAccess = DirAccess.open(real_path)
+	var open_error: Error = DirAccess.get_open_error()
 	
-	if directory == null:
+	if open_error != OK:
+		push_error("OmniKitFileHelper>directory_exist_on_executable_path: An error (%d | %s) while opening directory path '%s'" % [open_error, error_string(open_error), real_path])
 		return false
 	
 	return true
+
 	
 ## Supports RegEx expressions
 static func get_files_recursive(path: String, regex: RegEx = null) -> Array[String]:
@@ -26,7 +29,7 @@ static func get_files_recursive(path: String, regex: RegEx = null) -> Array[Stri
 		return []
 	
 	var files: Array[String] = []
-	var directory = DirAccess.open(path)
+	var directory: DirAccess = DirAccess.open(path)
 	var error: Error = DirAccess.get_open_error()
 	
 	if error != OK:
@@ -63,7 +66,6 @@ static func copy_directory_recursive(from_dir :String, to_dir :String) -> Error:
 		return ERR_DOES_NOT_EXIST
 		
 	if not DirAccess.dir_exists_absolute(to_dir):
-		
 		var err: Error = DirAccess.make_dir_recursive_absolute(to_dir)
 		if err != OK:
 			push_error("OmniKitFileHelper->copy_directory_recursive: Can't create directory '%s'. Error: %s" % [to_dir, error_string(err)])
@@ -100,7 +102,7 @@ static func copy_directory_recursive(from_dir :String, to_dir :String) -> Error:
 
 
 static func remove_files_recursive(path: String, regex: RegEx = null) -> Error:
-	var directory = DirAccess.open(path)
+	var directory: DirAccess = DirAccess.open(path)
 	
 	if DirAccess.get_open_error() == OK:
 		directory.list_dir_begin()
@@ -123,7 +125,7 @@ static func remove_files_recursive(path: String, regex: RegEx = null) -> Error:
 		
 		return OK
 	else:
-		var error := DirAccess.get_open_error()
+		var error: Error = DirAccess.get_open_error()
 		push_error("OmniKitFileHelper->remove_recursive: An error %s happened open directory: %s " % [error_string(error), path])
 		
 		return error
