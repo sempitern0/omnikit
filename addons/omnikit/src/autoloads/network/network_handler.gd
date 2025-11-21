@@ -9,11 +9,12 @@ signal server_disconnected()
 const DefaultServerPort: int = 42069
 const DefaultBroadcastPort: int = 42070
 const DefaultBroadcastListenPort: int = 42071
+const DefaultBroadcastAddress: String = "255.255.255.255"
 const DefaultDNSPort: int = 53
+
 const GoogleHost: String = "8.8.8.8"
 const CloudFlareHost: String = "1.1.1.1"
 const LocalHost: String = "127.0.0.1"
-const DefaultBroadcastAddress: String = "255.255.255.255"
 const DefaultPingHosts: Array[String] = [GoogleHost, CloudFlareHost]
 const DefaultPingURLs: Array[String] = [
 		"https://www.google.com/generate_204",
@@ -161,27 +162,27 @@ func _create_broadcast_timer() -> void:
 		broadcast_timer.timeout.connect(on_broadcast_timer_timeout)
 
 
-static func validate_ipv4(ip: String) -> bool:
+func validate_ipv4(ip: String) -> bool:
 	var ipv4_regex: RegEx = RegEx.new()
 	
 	return ipv4_regex.compile(r"^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$")
 
 
-static func validate_ipv6(ip: String) -> bool:
+func validate_ipv6(ip: String) -> bool:
 	var ipv6_regex: RegEx = RegEx.new()
 	
 	return ipv6_regex.compile(r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
 	
 	
-static func port_in_valid_range(port: int) -> bool:
+func port_in_valid_range(port: int) -> bool:
 	return OmniKitMathHelper.value_is_between(port, 1, pow(2, 16) - 1) ## 65536 - 1
 
 
-static func random_port() -> bool:
+func random_port() -> bool:
 	return randi_range(1, 65535)
 
 
-static func get_local_ips() -> Array[String]:
+func get_local_ips() -> Array[String]:
 	var addreses: PackedStringArray = IP.get_local_addresses()
 	var valid_addreses: Array[String] = []
 
@@ -197,13 +198,13 @@ static func get_local_ips() -> Array[String]:
 	return valid_addreses
 	
 
-static func get_local_ip(ip_type: IP.Type = IP.Type.TYPE_IPV4) -> String:
+func get_local_ip(ip_type: IP.Type = IP.Type.TYPE_IPV4) -> String:
 	var local_ips: Array[String] = get_local_ips()
 	
 	return LocalHost if local_ips.is_empty() else local_ips.front()
 
 
-static func get_broadcast_address(local_ip: String, use_localhost: bool = false) -> String:
+func get_broadcast_address(local_ip: String, use_localhost: bool = false) -> String:
 	if use_localhost:
 		return LocalHost
 	elif local_ip.begins_with("192.168."):
@@ -216,7 +217,7 @@ static func get_broadcast_address(local_ip: String, use_localhost: bool = false)
 		return LocalHost if use_localhost else DefaultBroadcastAddress
 	
 
-static func is_valid_url(url: String) -> bool:
+func is_valid_url(url: String) -> bool:
 	var regex = RegEx.new()
 	var url_pattern = "/(https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z]{2,}(\\.[a-zA-Z]{2,})(\\.[a-zA-Z]{2,})?\\/[a-zA-Z0-9]{2,}|((https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z]{1,}(\\.[a-zA-Z]{2,})(\\.[a-zA-Z]{2,})?)|(https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z0-9]{2,}\\.[a-zA-Z0-9]{2,}\\.[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,})?/g"
 	regex.compile(url_pattern)
@@ -224,7 +225,7 @@ static func is_valid_url(url: String) -> bool:
 	return regex.search(url) != null
 
 
-static func open_external_link(url: String) -> void:
+func open_external_link(url: String) -> void:
 	if is_valid_url(url) and OS.has_method("shell_open"):
 		if OS.get_name() == "Web":
 			url = url.uri_encode()
@@ -232,7 +233,7 @@ static func open_external_link(url: String) -> void:
 		OS.shell_open(url)
 		
 
-static func clear_signal_connections(selected_signal: Signal):
+func clear_signal_connections(selected_signal: Signal):
 	for connection: Dictionary in selected_signal.get_connections():
 		selected_signal.disconnect(connection.callable)
 
@@ -241,7 +242,7 @@ static func clear_signal_connections(selected_signal: Signal):
 # cryptographically secure random data. The value is then hex-encoded.
 # **Primary Purpose:** To prevent replay attacks in network and
 # authentication protocols by ensuring that every submitted message is unique.
-static func generate_nonce(bytes: int = 16) -> String:
+func generate_nonce(bytes: int = 16) -> String:
 	return Crypto.new().generate_random_bytes(bytes).hex_encode()
 
 

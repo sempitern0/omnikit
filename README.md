@@ -27,6 +27,23 @@
 		- [Screen related](#screen-related)
 		- [Screenshot](#screenshot)
 		- [Parallax](#parallax)
+	- [OmniKiGamepadControllerManager 🎮](#omnikigamepadcontrollermanager-)
+		- [Controller connected \& disconnected](#controller-connected--disconnected)
+		- [Gamepad names and buttons](#gamepad-names-and-buttons)
+		- [Current controller information](#current-controller-information)
+		- [Methods](#methods)
+	- [OmniKitNetworkHandler 🌐](#omnikitnetworkhandler-)
+		- [Signals](#signals)
+		- [Constants](#constants)
+		- [Information variables](#information-variables)
+		- [Information and detection methods](#information-and-detection-methods)
+		- [Ping](#ping)
+		- [Multiplayer (ENet)](#multiplayer-enet)
+		- [Local Network Discovery (UDP Broadcast)](#local-network-discovery-udp-broadcast)
+			- [Start Broadcast on the Server](#start-broadcast-on-the-server)
+			- [Start Broadcast listener on the Client](#start-broadcast-listener-on-the-client)
+			- [Set the broadcast emission data](#set-the-broadcast-emission-data)
+			- [End broadcast](#end-broadcast)
 
 # Installation 📦
 
@@ -190,4 +207,238 @@ func adapt_parallax_to_vertical_viewport(parallax: Parallax2D, viewport: Rect2 =
 func adapt_parallax_background_to_horizontal_viewport(parallax_background: ParallaxBackground, viewport: Rect2 = get_window().get_visible_rect()) -> void
 		
 func adapt_parallax_background_to_vertical_viewport(parallax_background: ParallaxBackground, viewport: Rect2 = get_window().get_visible_rect()) -> void
+```
+
+## OmniKiGamepadControllerManager 🎮
+
+The `OmniKiGamepadControllerManager` allows you to manipulate and obtain information from connected game controllers. Most of the methods Tare for obtaining information from the gamepad.
+
+This autoloads mainly helps you to detect gamepads connected to your game. **It does not contains actions remapping** so it's only for detection. This manager automatically detects when a joy it's connected & disconnected and update the current controller name.
+
+> [!TIP]
+> More information about gamepad names on [https://github.com/mdqinc/SDL_GameControllerDB](https://github.com/mdqinc/SDL_GameControllerDB)
+
+### Controller connected & disconnected
+This signals are emitted when a new or existing controller is connected & disconnected
+
+```swift
+signal controller_connected(device_id, controller_name: String)
+signal controller_disconnected(device_id, previous_controller_name: String, controller_name: String)
+```
+
+### Gamepad names and buttons
+
+```swift
+const DeviceGeneric: StringName = &"generic"
+const DeviceKeyboard: StringName = &"keyboard"
+const DeviceXboxController: StringName = &"xbox"
+const DeviceSwitchController: StringName = &"switch"
+const DeviceSwitchJoyconLeftController: StringName = &"switch_left_joycon"
+const DeviceSwitchJoyconRightController: StringName = &"switch_right_joycon"
+const DevicePlaystationController: StringName = &"playstation"
+const DeviceLunaController: StringName = &"luna"
+const DeviceSteamDeckController: StringName = &"steam"
+
+const XboxButtonLabels: Array[String] = ["A", "B", "X", "Y", "Back", "Home", "Menu", "Left Stick", "Right Stick", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right", "Share"]
+const SwitchButtonLabels: Array[String] = ["B", "A", "Y", "X", "-", "", "+", "Left Stick", "Right Stick", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right", "Capture"]
+const PlaystationButtonLabels: Array[String] = ["Cross", "Circle", "Square", "Triangle", "Select", "PS", "Options", "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right", "Microphone"]
+const SteamdeckButtonLabels: Array[String] = ["A", "B", "X", "Y", "View", "", "Options", "Left Stick Press", "Right Stick Press", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right"]
+
+const DefaultVibrationStrength: float = 0.5
+const DefaultVibrationDuration: float = 0.65
+```
+
+### Current controller information
+
+```swift
+var current_controller_guid
+var current_controller_device := DeviceKeyboard
+var current_controller_name: String = "Keyboard"
+var current_device_id: int = 0
+var connected: bool = false
+```
+
+### Methods
+
+```swift
+func has_joypad() -> bool
+
+// Array of device ids
+func joypads() -> Array[int]
+
+
+func start_controller_vibration(weak_strength = default_vibration_strength, strong_strength = default_vibration_strength, duration = default_vibration_duration)
+
+func stop_controller_vibration()
+
+// Controller detectors
+func current_controller_is_steam_deck() -> bool:
+
+func current_controller_is_generic() -> bool
+
+func current_controller_is_luna() -> bool
+
+func current_controller_is_keyboard() -> bool
+
+func current_controller_is_playstation() -> bool
+
+func current_controller_is_xbox() -> bool
+
+func current_controller_is_switch() -> bool
+
+func current_controller_is_switch_joycon() -> bool
+
+func current_controller_is_switch_joycon_right() -> bool
+
+func current_controller_is_switch_joycon_left() -> bool
+```
+
+## OmniKitNetworkHandler 🌐
+The `OmniKitNetworkHandler` is a comprehensive utility designed to simplify network, connectivity, and multiplayer operations in Godot. It provides essential tools for starting servers/clients using Godot's ENetMultiplayerPeer, handling local network discovery via UDP broadcasting, and performing external connectivity checks.
+
+### Signals
+```swift
+signal client_connected(id: int)
+signal client_disconnected(id: int)
+signal connected_to_server()
+signal connection_failed_to_server()
+signal server_disconnected()
+```
+
+### Constants
+```swift
+const DefaultServerPort: int = 42069
+const DefaultBroadcastPort: int = 42070
+const DefaultBroadcastListenPort: int = 42071
+const DefaultBroadcastAddress: String = "255.255.255.255"
+const DefaultDNSPort: int = 53
+
+const GoogleHost: String = "8.8.8.8"
+const CloudFlareHost: String = "1.1.1.1"
+const LocalHost: String = "127.0.0.1"
+const DefaultPingHosts: Array[String] = [GoogleHost, CloudFlareHost]
+const DefaultPingURLs: Array[String] = [
+		"https://www.google.com/generate_204",
+		"https://www.cloudflare.com/cdn-cgi/trace",
+		"https://example.com"
+]
+```
+
+### Information variables
+```swift
+var broadcaster: PacketPeerUDP
+var broadcast_listener: PacketPeerUDP
+var broadcast_timer: Timer
+var broadcast_emission_interval: int = 1
+var current_broadcast_emission: PackedByteArray
+
+var peer: ENetMultiplayerPeer
+
+// Useful to debug multiple instances in the same machine as using the local IP
+// only works when testing different devices on the same LAN.
+var use_localhost: bool = true
+
+var current_ip_address: String
+var current_broadcast_address: String
+```
+
+### Information and detection methods
+Even if you don't use it for network management in your project, there are useful methods for obtaining network & hardware information.
+
+
+```swift
+func validate_ipv4(ip: String) -> bool
+
+func validate_ipv6(ip: String) -> bool
+
+func is_valid_url(url: String) -> bool
+
+// Safely opens an external URL using the host operating system's shell. Includes a special check for the Web platform.
+func open_external_link(url: String) -> void
+
+func port_in_valid_range(port: int) -> bool
+
+func random_port() -> bool
+
+// Returns a sorted array of local private IP addresses (e.g., 192.168.x.x, $10.x.x.x). Sorts 192.168.x.x addresses first.
+func get_local_ips() -> Array[String]
+
+// Returns the most likely private IP address to be used for networking (the first in the sorted list from get_local_ips()). Defaults to 127.0.0.1 if no local IP is found.
+func get_local_ip(ip_type: IP.Type = IP.Type.TYPE_IPV4) -> String:
+
+// Determines the correct broadcast IP for the network segment (e.g., 192.168.1.255) based on the provided local_ip.
+func get_broadcast_address(local_ip: String, use_localhost: bool = false) -> String:
+
+
+// Generates a Cryptographically Secure Nonce (Number Used Once).
+// It uses the Crypto module to generate by default 16 bytes (128 bits) of
+// cryptographically secure random data. The value is then hex-encoded.
+// **Primary Purpose:** To prevent replay attacks in network and
+// authentication protocols by ensuring that every submitted message is unique.
+func generate_nonce(bytes: int = 16) -> String
+```
+
+### Ping
+Attempts to check for external internet connectivity by sending non-blocking `HTTPRequests` to a list of URLs *(defaults to known public endpoints like Google and Cloudflare)*. It returns true if any request returns a successful status code *(200 or 204)*.
+
+> [!IMPORTANT]
+> This method uses await for its internal HTTP requests, meaning it should be called from an async function or with await in mind.
+
+`func ping(urls: Array[String] = DefaultPingURLs) -> bool`
+
+
+### Multiplayer (ENet)
+This set of methods manages the setup and teardown of the Godot MultiplayerAPI using the reliable ENet protocol.
+
+```swift
+
+// Initializes the ENetMultiplayerPeer as a server on the specified port, setting it as the active multiplayer.multiplayer_peer. 
+// It automatically connects the server's lifecycle signals to the exposed OmniKitLocalNetworkHandler.
+func start_server(port: int = DefaultServerPort, max_players: int = 32) -> void
+
+// Initializes the ENetMultiplayerPeer as a client and attempts to connect to the specified IP address and port.
+// It connects all relevant client lifecycle signals exposed OmniKitLocalNetworkHandler.
+func start_client(ip: String = LocalHost, port: int = DefaultServerPort) -> void
+
+// Cleans up all networking components: stops broadcasting, closes the broadcast listener, and sets multiplayer.multiplayer_peer = null, effectively closing the active connection or server.
+func end() -> void:
+```
+
+### Local Network Discovery (UDP Broadcast)
+This module utilizes UDP broadcasting to allow clients on the same local network (LAN) to discover active game servers without requiring the server's exact IP address.
+
+#### Start Broadcast on the Server
+Initializes the server-side broadcaster `PacketPeerUDP`. This starts a repeating `Timer` that sends the content of `current_broadcast_emission` every broadcast_emission_interval seconds to the local network's broadcast address.
+
+The broadcast address is automatically determined based on the server's local IP address *(e.g., 192.168.1.255)*.
+
+```swift
+func start_broadcast(broadcast_port: int = DefaultBroadcastPort, dest_port: int = DefaultBroadcastListenPort, bind_address: String = "0.0.0.0") -> void
+```
+
+#### Start Broadcast listener on the Client
+Initializes the client-side listener `PacketPeerUDP`. Once started, the client must poll the returned `PacketPeerUDP` object to check for and decode incoming server broadcasts.
+
+```swift
+func start_broadcast_listener(listen_port: int = DefaultBroadcastListenPort, bind_address: String = "0.0.0.0") -> PacketPeerUDP
+
+
+// An example to decode packets received you can create the next logic inside the script where you started the listener
+// It's possible that you could emit other type of information different from ascii
+if OmniKitNetworkHandler.broadcast_listener and OmniKitNetworkHandler.broadcast_listener.get_available_packet_count() > 0:
+	var server_bytes_data: Dictionary = JSON.parse_string(OmniKitNetworkHandler.broadcast_listener.get_packet().get_string_from_ascii())
+```
+
+#### Set the broadcast emission data
+Sets the packet data that the server will repeatedly broadcast. This data should contain information about the server *(e.g., game name, player count, server IP, port)*, usually encoded as a JSON string and converted to a `PackedByteArray`.
+
+`func set_current_broadcast_emission(packet: PackedByteArray) -> void`
+
+
+#### End broadcast
+
+```swift
+func end_broadcast() -> void
+
+func end_broadcast_listener() -> void
 ```
