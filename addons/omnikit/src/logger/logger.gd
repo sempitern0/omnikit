@@ -47,6 +47,7 @@ static func _create_log_file() -> String:
 	return file_path if file else ""
 
 
+## Tracking player progression, state changes, or routine successful actions.
 static func info(message: String) -> void:
 	if not _is_valid:
 		return
@@ -58,6 +59,7 @@ static func info(message: String) -> void:
 	_print_event(message, event)
 
 
+## Notifying of non-critical issues (e.g., missing resource files, deprecated calls) that don't halt execution.
 static func warn(message: String) -> void:
 	if not _is_valid:
 		return
@@ -69,6 +71,7 @@ static func warn(message: String) -> void:
 	_print_event(message, event)
 
 
+## Logging application errors, failed API calls, or issues that prevent intended functionality. Includes a script backtrace.
 static func error(message: String) -> void:
 	if not _is_valid:
 		return
@@ -84,7 +87,7 @@ static func error(message: String) -> void:
 	_add_message_to_queue(message, event)
 	_print_event(message, event)
 
-
+## Logging failures that may lead to instability or immediate crashes. Includes a script backtrace.
 static func critical(message: String) -> void:
 	if not _is_valid:
 		return

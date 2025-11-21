@@ -35,7 +35,7 @@
 	- [OmniKitNetworkHandler 🌐](#omnikitnetworkhandler-)
 		- [Signals](#signals)
 		- [Constants](#constants)
-		- [Information variables](#information-variables)
+		- [Accessible variables](#accessible-variables)
 		- [Information and detection methods](#information-and-detection-methods)
 		- [Ping](#ping)
 		- [Multiplayer (ENet)](#multiplayer-enet)
@@ -44,6 +44,13 @@
 			- [Start Broadcast listener on the Client](#start-broadcast-listener-on-the-client)
 			- [Set the broadcast emission data](#set-the-broadcast-emission-data)
 			- [End broadcast](#end-broadcast)
+- [OmniKitLogger](#omnikitlogger)
+- [Helpers ✨](#helpers-)
+	- [OmniKitCollisionHelper 💥](#omnikitcollisionhelper-)
+	- [OmniKitColorHelper 🎨](#omnikitcolorhelper-)
+		- [ColorPalette](#colorpalette)
+		- [ColorGradient](#colorgradient)
+		- [Generate and compare colors](#generate-and-compare-colors)
 
 # Installation 📦
 
@@ -324,7 +331,7 @@ const DefaultPingURLs: Array[String] = [
 ]
 ```
 
-### Information variables
+### Accessible variables
 ```swift
 var broadcaster: PacketPeerUDP
 var broadcast_listener: PacketPeerUDP
@@ -338,8 +345,8 @@ var peer: ENetMultiplayerPeer
 // only works when testing different devices on the same LAN.
 var use_localhost: bool = true
 
-var current_ip_address: String
-var current_broadcast_address: String
+var current_ip_address: String // Initialized on enter_tree()
+var current_broadcast_address: String // Initialized on enter_tree()
 ```
 
 ### Information and detection methods
@@ -441,4 +448,109 @@ Sets the packet data that the server will repeatedly broadcast. This data should
 func end_broadcast() -> void
 
 func end_broadcast_listener() -> void
+```
+
+
+# OmniKitLogger
+> [!NOTE]
+> *This is an improved version of [https://forum.godotengine.org/t/how-to-use-the-new-logger-class-in-godot-4-5/127006](https://forum.godotengine.org/t/how-to-use-the-new-logger-class-in-godot-4-5/127006)*
+
+
+This custom Logger extends Godot's built-in `Logger` class, providing an enhanced, asynchronous, and file-backed logging system. This OmnikitLogger requires zero setup from the user. The log files are saved by the default in `OS.get_user_data_dir() + "/logs"`
+
+```swift
+// Tracking player progression, state changes, or routine successful actions.
+OmniKitLogger.info(message: String) 
+
+//Notifying of non-critical issues (e.g., missing resource files, deprecated calls) that don't halt execution.
+OmniKitLogger.warn(message: String)
+
+// Logging application errors, failed API calls, or issues that prevent intended functionality. Includes a script backtrace.
+OmniKitLogger.error(message: String)
+
+// Logging failures that may lead to instability or immediate crashes. Includes a script backtrace.
+OmniKitLogger.critical(message: String)
+```
+
+# Helpers ✨
+The helpers are static classes with a multitude of methods to help simplify the work. They are globally available and they don't need to be loaded in the scene tree.
+
+## OmniKitCollisionHelper 💥
+Functions related to collisions.
+
+
+```swift
+func layer_to_value(layer: int) -> int
+
+func value_to_layer(value: int) -> int
+
+// Examples
+
+OmniKitCollisionHelper.layer_to_value(3) // Returns 8
+OmniKitCollisionHelper.value_to_layer(8) // Returns 3
+
+OmniKitCollisionHelper.layer_to_value(11) // Returns 1024
+OmniKitCollisionHelper.value_to_layer(1024) // Returns 11
+```
+
+## OmniKitColorHelper 🎨
+Provides an easy way to work with colors. Create gradients and palettes through resources, generate random colors, compare them, etc.
+
+### ColorPalette
+There are multiple premade color palettes ready to use you can check them on `"res://addons/omnikit/src/helpers/color/palettes"`. 
+```swift
+class_name OmniKitColorPalette extends Resource
+
+@export var id: StringName
+@export var name: StringName
+@export var colors: PackedColorArray = []
+```
+
+
+### ColorGradient
+There are multiple premade color gradients ready to use you can check them on `"res://addons/omnikit/src/helpers/color/gradients"`. 
+```swift
+class_name OmniKitColorGradient extends Resource
+
+@export var id: StringName
+@export var name: StringName
+@export var gradient: GradientTexture1D
+```
+
+```swift
+const ColorPalettesPath: String = "res://addons/omnikit/src/helpers/color/palettes"
+const GradientsPath: String = "res://addons/omnikit/src/helpers/color/gradients"
+
+// By default it uses the path provided in this class as constants to find recursively the palette & gradient with the selected id
+func get_palette(id: StringName) -> ColorPalette
+
+func get_gradient(id: StringName) -> ColorGradient
+```
+
+### Generate and compare colors
+
+
+```swift
+// Based on the method, it will call the generate_random_hsv_colors or generate_random_rgb_colors method
+
+enum ColorGenerationMethod {
+	RandomRGB,
+	GoldenRatioHSV
+}
+
+func generate_random_colors(method: ColorGenerationMethod, number_of_colors: int = 12, saturation: float = 0.5, value: float = 0.95) -> PackedColorArray
+
+// Using ideas from https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
+func generate_random_hsv_colors(number_of_colors: int = 12, saturation: float = 0.5, value: float = 0.95) -> PackedColorArray
+
+// Using ideas from https://www.iquilezles.org/www/articles/palettes/palettes.htm
+func generate_random_rgb_colors(number_of_colors: int = 12, darkened_value: float = 0.2) -> PackedColorArray
+
+// ---------------------
+
+// Compare colors with a tolerance
+func colors_are_similar(color_a: Color, color_b: Color, tolerance: float = 100.0) -> bool
+
+// Translates a Vector3 or Vector4 to a valid Color. Returns Color.WHITE by default
+func color_from_vector(vec) -> Color:
 ```
