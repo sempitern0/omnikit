@@ -38,25 +38,6 @@ static func renderer_is_mobile() -> bool:
 static func has_fsr() -> bool:
 	return OS.has_feature("fsr")
 
-
-static func hostname() -> String:
-	if is_android():
-		var output: Array = []
-		OS.execute("getprop" , ["net.hostname"], output, false)
-		
-		if output.is_empty():
-			return ""
-		
-		return var_to_str(output)
-	
-	var environment_vars: Array[String] = ["COMPUTERNAME", "USERNAME", "USER"]
-	
-	for env_var: String in environment_vars:
-		if OS.has_environment(env_var):
-			return OS.get_environment(env_var)
-
-	return ""
-		
 		
 static func is_steam_deck() -> bool:
 	return OmniKitStringHelper.equals_ignore_case(distribution_name, "SteamOS") \

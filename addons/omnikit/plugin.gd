@@ -7,7 +7,7 @@ var mutex: Mutex
 	
 func _enter_tree() -> void:
 	add_autoload_singleton("OmniKitWindowManager", "src/autoloads/viewport/window_manager.gd")
-	add_autoload_singleton("OmniKitLocalNetworkHandler", "src/autoloads/network/local_network_handler.gd")
+	add_autoload_singleton("OmniKitNetworkHandler", "src/autoloads/network/network_handler.gd")
 	add_autoload_singleton("OmniKitGamepadControllerManager", "src/autoloads/gamepad/gamepad_controller_manager.gd")
 	
 	
@@ -58,7 +58,7 @@ func _exit_tree() -> void:
 	
 	remove_autoload_singleton("OmniKitGamepadControllerManager")
 	remove_autoload_singleton("OmniKitWindowManager")
-	remove_autoload_singleton("OmniKitLocalNetworkHandler")
+	remove_autoload_singleton("OmniKitNetworkHandler")
 
 
 func generate_preloader_file() -> void:
