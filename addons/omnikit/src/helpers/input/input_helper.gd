@@ -1,6 +1,6 @@
 class_name OmniKitInputHelper extends Node
 
-static var numeric_keys = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105]
+const NumericKeys: Array[int] = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105]
 
 static func is_mouse_left_click(event: InputEvent) -> bool:
 	return is_mouse_button(event) and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
@@ -147,7 +147,7 @@ static func is_gamepad_input(event: InputEvent) -> bool:
 
 
 static func numeric_key_pressed(event: InputEvent) -> bool:
-	return event is InputEventKey and event.pressed && (numeric_keys.has(int(event.keycode)) || numeric_keys.has(int(event.physical_keycode)) )
+	return event is InputEventKey and event.pressed && (NumericKeys.has(int(event.keycode)) || NumericKeys.has(int(event.physical_keycode)) )
 
 
 static func readable_key(key: InputEvent) -> String:

@@ -13,9 +13,9 @@ static var random_number_generator: RandomNumberGenerator = RandomNumberGenerato
 
 
 static func generate_random_string(length: int = 25, characters: String = AsciiAlphanumeric) -> String:
-	var result := ""
+	var result: String = ""
 	
-	if(not characters.is_empty() && length > 0):
+	if not characters.is_empty() && length > 0:
 		for character in range(length):
 			result += characters[random_number_generator.randi() % characters.length()]
 			
@@ -23,8 +23,8 @@ static func generate_random_string(length: int = 25, characters: String = AsciiA
 	
 ## Converts PascalCaseString into pascal_case_string
 static func camel_to_snake(camel_string: String) -> String:
-	var snake_string := ""
-	var previous_char := ""
+	var snake_string: String = ""
+	var previous_char: String = ""
 	
 	for c in camel_string:
 		if c.to_upper() == c and previous_char != "" and previous_char.to_upper() != previous_char:
@@ -36,8 +36,8 @@ static func camel_to_snake(camel_string: String) -> String:
 
 ## Converts pascal_case_string into PascalCaseString
 static func snake_to_camel_case(screaming_snake_case: String) -> String:
-	var words := screaming_snake_case.split("_")
-	var camel_case := ""
+	var words: PackedStringArray = screaming_snake_case.split("_")
+	var camel_case: String = ""
 	
 	for i in range(words.size()):
 		camel_case += words[i].capitalize()
@@ -54,10 +54,10 @@ static func clean(string: String, include_numbers: bool = true) -> String:
 	else:
 		regex.compile("[\\p{L} ]*")
 	
-	var result = ""
-	var matches = regex.search_all(string)
+	var result: String = ""
+	var matches: Array[RegExMatch] = regex.search_all(string)
 	
-	for m in matches:
+	for m: RegExMatch in matches:
 		for s in m.strings:
 			result += s
 			

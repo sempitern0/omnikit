@@ -186,3 +186,78 @@ static func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array:
 		fractured_polygons.append(triangle_points)
 	
 	return fractured_polygons
+
+
+# https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
+static func segment_circle_intersects(start, end, center, radius) -> Array:
+	var d = end - start
+	var f = start - center
+	
+	var a = d.dot(d)
+	var b = 2 * f.dot(d)
+	var c = f.dot(f) - radius * radius
+	var disc = b * b - 4 * a * c
+	
+	if disc < 0:
+		return []
+	
+	disc = sqrt(disc)
+	var candidates = [(-b - disc) / (2 * a), (-b + disc) / (2 * a)]
+	
+	var intersects = []
+	
+	for t in candidates:
+		if t >= 0.0 and t <= 1.0:
+			intersects.append((1 - t) * start + t * end)
+		
+	return intersects
+				
+# Returns intersection point(s) of a segment from 'a' to 'b' with a given rect, in order of increasing distance from 'a'
+static func segment_rect_intersects(a, b, rect) -> Array:
+	var points := []
+	var corners := [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]
+	
+	for i in range(4):
+		var intersect = Geometry2D.segment_intersects_segment(a, b, corners[i - 1], corners[i])
+		
+		if intersect:
+			if not points.is_empty() and intersect.distance_squared_to(a) < points[0].distance_squared_to(a):
+				points.push_front(intersect)
+			else:
+				points.append(intersect)
+				
+			if points.size() == 2:
+				break
+				
+	return points
+	
+#https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Rectangle_difference	
+static func rect_difference(r1: Rect2, r2: Rect2) -> Array:
+	var result = []
+	var top_height = r2.position.y - r1.position.y
+	
+	if top_height > 0:
+		result.append(Rect2(r1.position.x, r1.position.y, r1.size.x, top_height))
+		
+	var bottom_y = r2.position.y + r2.size.y
+	var bottom_height = r1.size.y - (bottom_y - r1.position.y)
+	
+	if bottom_height > 0 and bottom_y < r1.position.y + r1.size.y:
+		result.append(Rect2(r1.position.x, bottom_y, r1.size.x, bottom_height))
+		
+	var y1 = max(r1.position.y, r2.position.y)
+	var y2 = min(bottom_y, (r1.position.y + r1.size.y))
+	var lr_height = y2 - y1
+	
+	var left_width = r2.position.x - r1.position.x
+	
+	if left_width > 0 and lr_height > 0:
+		result.append(Rect2(r1.position.x, y1, left_width, lr_height))
+		
+	var right_x = r2.position.x + r2.size.x
+	var right_width = r1.size.x - (right_x - r1.position.x)
+	
+	if right_width > 0 and lr_height > 0:
+		result.append(Rect2(right_x, y1, right_width, lr_height))
+	
+	return result

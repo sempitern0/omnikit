@@ -164,7 +164,7 @@ static func get_tree_depth(node: Node) -> int:
 	
 	
 static func get_absolute_z_index(node: Node2D) -> int:
-	var z := 0
+	var z: int = 0
 	
 	while node is Node2D:
 		z += node.z_index

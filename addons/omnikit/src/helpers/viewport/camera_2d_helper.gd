@@ -14,3 +14,13 @@ func get_panning_camera_position(camera: Camera2D) -> Vector2:
 		return new_camera_position
 		
 	return Vector2.ZERO
+
+
+func get_camera2d_frame(viewport: Viewport, selected_camera: Camera2D = null) -> Rect2:
+	var camera_frame: Rect2 = viewport.get_visible_rect()
+	var camera: Camera2D = viewport.get_camera_2d() if selected_camera == null else selected_camera
+	
+	if camera:
+		camera_frame.position = camera.get_screen_center_position() - camera_frame.size / 2.0
+		
+	return camera_frame

@@ -17,7 +17,7 @@ func _init(_major: int, _minor: int, _patch: int, _state: String = "") -> void:
 
 
 static func parse(value: String) -> OmniKitSemanticVersion:
-	var regex: = RegEx.new()
+	var regex: RegEx = RegEx.new()
 	regex.compile("[a-zA-Z:,-]+")
 	
 	var cleaned: String = regex.sub(value, "", true)

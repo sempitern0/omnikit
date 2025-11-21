@@ -34,7 +34,7 @@ Example:
 """
 @warning_ignore("narrowing_conversion")
 static func format_seconds(time: float, use_milliseconds: bool = false) -> String:
-	var minutes: int= floori(time / 60)
+	var minutes: int = floori(time / 60)
 	var seconds: int = fmod(time, 60)
 	var milliseconds: int = fmod(time, 1) * 100
 

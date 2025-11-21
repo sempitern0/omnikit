@@ -1,5 +1,7 @@
 extends Node
 
+signal size_changed
+signal screenshot_taken(image: Image)
 ## Configuration for 4k Games
 # Viewport Size: 1920x1080
 # Aspect: Expand
@@ -31,9 +33,8 @@ const AspectRatio16_9: Vector2i = Vector2i(16,9)
 const AspectRatio16_10: Vector2i = Vector2i(16, 10)
 const AspectRatio21_9: Vector2i = Vector2i(21, 9)
 
-signal size_changed
 
-var resolutions: Dictionary[StringName, Array] = {
+const resolutions: Dictionary[StringName, Array] = {
 	Resolution_Mobile: [
 		Vector2i(320, 480),  # Older smartphones
 		Vector2i(320, 640),
@@ -106,6 +107,7 @@ enum DaltonismTypes {
 	Tritanopia,
 	Achromatopsia
 }
+
 
 func _enter_tree() -> void:
 	get_tree().root.size_changed.connect(on_size_changed)
@@ -221,15 +223,6 @@ func get_mobile_safe_area(viewport: Viewport = get_viewport()) -> Rect2:
 	
 	return Rect2(safe_area_position, safe_area_size)
 
-
-func get_camera2d_frame(viewport: Viewport = get_viewport()) -> Rect2:
-	var camera_frame: Rect2 = viewport.get_visible_rect()
-	var camera: Camera2D = viewport.get_camera_2d()
-	
-	if camera:
-		camera_frame.position = camera.get_screen_center_position() - camera_frame.size / 2.0
-		
-	return camera_frame
 	
 #region Screenshot
 ## Recommended to call this method after await RenderingServer.frame_post_draw
@@ -240,6 +233,8 @@ func screenshot(viewport: Viewport) -> Image:
 	
 	screenshot_image.convert(Image.FORMAT_RGB8)
 	screenshot_image.fix_alpha_edges()
+	
+	screenshot_taken.emit(screenshot_image)
 	
 	return screenshot_image
 

@@ -171,11 +171,11 @@ static func roman_number_to_integer(roman_number: String) -> int:
 
 
 static func hexadecimal_to_decimal(hex: String) -> int:
-	var decimal_value := 0.0
-	var power := 0.0
-	var val := 0.0
+	var decimal_value: float = 0.0
+	var power: float = 0.0
+	var val: float = 0.0
 	
-	for character in hex.strip_edges().reverse():
+	for character: String in hex.strip_edges().reverse():
 		val = HexCharacters.find(character.to_upper())  # Find decimal value of uppercase char
 		
 		if val == -1:
@@ -189,7 +189,7 @@ static func hexadecimal_to_decimal(hex: String) -> int:
 
 static func decimal_to_hexadecimal(decimal: int) -> String:
 	var remaining = decimal
-	var hex_string = ""
+	var hex_string: String = ""
 
 	while remaining > 0:
 		var remainder_hex = remaining % 16
@@ -202,7 +202,7 @@ static func decimal_to_hexadecimal(decimal: int) -> String:
 static func value_is_between(number: int, min_value: int, max_value: int, inclusive: = true) -> bool:
 	if inclusive:
 		return number >= min(min_value, max_value) and number <= max(min_value, max_value)
-	else :
+	else:
 		return number > min(min_value, max_value) and number < max(min_value, max_value)
 
 
@@ -215,9 +215,9 @@ static func decimal_value_is_between(number: float, min_value: float, max_value:
 
 
 static func add_thousand_separator(number, separator: String = ",") -> String:
-	var number_as_text = str(number)
+	var number_as_text: String = str(number)
 	var mod = number_as_text.length() % 3
-	var result := ""
+	var result: String = ""
 	
 	for index in range(0, number_as_text.length()):
 		if index != 0 and index % 3 == mod:
@@ -268,81 +268,6 @@ static func limit_horizontal_angle(direction: Vector2, limit_angle: float) -> Ve
 			angle = (PI - limit_angle) * sign(angle)
 			
 	return Vector2(cos(angle), sin(angle))
-
-
-# https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
-static func segment_circle_intersects(start, end, center, radius) -> Array:
-	var d = end - start
-	var f = start - center
-	
-	var a = d.dot(d)
-	var b = 2 * f.dot(d)
-	var c = f.dot(f) - radius * radius
-	var disc = b * b - 4 * a * c
-	
-	if disc < 0:
-		return []
-	
-	disc = sqrt(disc)
-	var candidates = [(-b - disc) / (2 * a), (-b + disc) / (2 * a)]
-	
-	var intersects = []
-	
-	for t in candidates:
-		if t >= 0.0 and t <= 1.0:
-			intersects.append((1 - t) * start + t * end)
-		
-	return intersects
-				
-# Returns intersection point(s) of a segment from 'a' to 'b' with a given rect, in order of increasing distance from 'a'
-static func segment_rect_intersects(a, b, rect) -> Array:
-	var points := []
-	var corners := [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]
-	
-	for i in range(4):
-		var intersect = Geometry2D.segment_intersects_segment(a, b, corners[i - 1], corners[i])
-		
-		if intersect:
-			if not points.is_empty() and intersect.distance_squared_to(a) < points[0].distance_squared_to(a):
-				points.push_front(intersect)
-			else:
-				points.append(intersect)
-				
-			if points.size() == 2:
-				break
-				
-	return points
-	
-#https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Rectangle_difference	
-static func rect_difference(r1: Rect2, r2: Rect2) -> Array:
-	var result = []
-	var top_height = r2.position.y - r1.position.y
-	
-	if top_height > 0:
-		result.append(Rect2(r1.position.x, r1.position.y, r1.size.x, top_height))
-		
-	var bottom_y = r2.position.y + r2.size.y
-	var bottom_height = r1.size.y - (bottom_y - r1.position.y)
-	
-	if bottom_height > 0 and bottom_y < r1.position.y + r1.size.y:
-		result.append(Rect2(r1.position.x, bottom_y, r1.size.x, bottom_height))
-		
-	var y1 = max(r1.position.y, r2.position.y)
-	var y2 = min(bottom_y, (r1.position.y + r1.size.y))
-	var lr_height = y2 - y1
-	
-	var left_width = r2.position.x - r1.position.x
-	
-	if left_width > 0 and lr_height > 0:
-		result.append(Rect2(r1.position.x, y1, left_width, lr_height))
-		
-	var right_x = r2.position.x + r2.size.x
-	var right_width = r1.size.x - (right_x - r1.position.x)
-	
-	if right_width > 0 and lr_height > 0:
-		result.append(Rect2(right_x, y1, right_width, lr_height))
-	
-	return result
 
 
 static func average(numbers: Array = []) -> float:
@@ -404,11 +329,3 @@ static func generate_random_seed(seed_range: int = 10) -> String:
 		random_seed += char(int(randi_range(40, 127)))
 		
 	return random_seed
-
-## Generates a Cryptographically Secure Nonce (Number Used Once).
-# It uses the Crypto module to generate by default 16 bytes (128 bits) of
-# cryptographically secure random data. The value is then hex-encoded.
-# **Primary Purpose:** To prevent replay attacks in network and
-# authentication protocols by ensuring that every submitted message is unique.
-static func generate_nonce(bytes: int = 16) -> String:
-	return Crypto.new().generate_random_bytes(bytes).hex_encode()

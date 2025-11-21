@@ -133,7 +133,15 @@ static func open_external_link(url: String) -> void:
 			
 		OS.shell_open(url)
 		
-		
+
 static func clear_signal_connections(selected_signal: Signal):
 	for connection: Dictionary in selected_signal.get_connections():
 		selected_signal.disconnect(connection.callable)
+
+## Generates a Cryptographically Secure Nonce (Number Used Once).
+# It uses the Crypto module to generate by default 16 bytes (128 bits) of
+# cryptographically secure random data. The value is then hex-encoded.
+# **Primary Purpose:** To prevent replay attacks in network and
+# authentication protocols by ensuring that every submitted message is unique.
+static func generate_nonce(bytes: int = 16) -> String:
+	return Crypto.new().generate_random_bytes(bytes).hex_encode()

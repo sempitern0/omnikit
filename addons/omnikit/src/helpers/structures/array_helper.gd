@@ -5,12 +5,11 @@ static func only_has_numbers(array: Array[Variant]) -> bool:
 	if array.is_empty():
 		return false
 		
-	return array.all(func(value: Variant) -> bool:
-		if typeof(value) in [TYPE_STRING, TYPE_STRING_NAME]:
-			return value.is_valid_int() or value.is_valid_float()
-			
-		return typeof(value) in [TYPE_INT, TYPE_FLOAT]
-	)
+	return array.all(_is_number)
+	
+	
+static func remove_numbers(array: Array[Variant]) -> Array:
+	return array.filter(func(value: Variant): return not _is_number(value))
 	
 	
 static func sum(values: Array[int]) -> int:
@@ -41,7 +40,7 @@ static func repeat(element: Variant, times: int) -> Array[Variant]:
 
 ## Flatten any array with n dimensions recursively
 static func flatten(array: Array[Variant]):
-	var result := []
+	var result: Array[Variant] = []
 	
 	for i in array.size():
 		if typeof(array[i]) >= TYPE_ARRAY:
@@ -189,3 +188,10 @@ static func chunk(array: Array[Variant], size: int, only_chunks_with_same_size: 
 		i += 1
 		
 	return result
+
+
+static func _is_number(value: Variant) -> bool:
+	if typeof(value) in [TYPE_STRING, TYPE_STRING_NAME]:
+		return value.is_valid_int() or value.is_valid_float()
+			
+	return typeof(value) in [TYPE_INT, TYPE_FLOAT]
