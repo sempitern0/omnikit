@@ -118,7 +118,7 @@ enum Languages {
 	Nyanja,
 }
 
-static var available_languages: Dictionary = {
+static var available_languages: Dictionary[Languages, Language] = {
 	## Common languages
 	Languages.English: Language.new("en", "en_US", "English", "English"),
 	Languages.French: Language.new("fr", "fr_FR", "Français", "French"),

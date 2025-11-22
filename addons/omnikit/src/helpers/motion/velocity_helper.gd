@@ -6,7 +6,7 @@ enum SpeedUnit {
 }
 
 
-static func current_speed_on(speed_unit: SpeedUnit, velocity) -> float:
+static func current_speed_on(speed_unit: SpeedUnit, velocity: Variant) -> float:
 		match speed_unit:
 			SpeedUnit.KilometersPerHour:
 				return current_speed_on_kilometers_per_hour(velocity)
