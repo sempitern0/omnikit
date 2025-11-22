@@ -54,6 +54,25 @@
 	- [Name generator 🏷️](#name-generator-️)
 		- [Custom repositories](#custom-repositories)
 		- [Generate random names](#generate-random-names)
+	- [Files 🗃️](#files-️)
+		- [OmniKitFileHelper](#omnikitfilehelper)
+		- [CSV Reader](#csv-reader)
+		- [JSON Reader](#json-reader)
+	- [Geometry 🔳](#geometry-)
+	- [Hardware detector 💻](#hardware-detector-)
+		- [Accessible variables](#accessible-variables-1)
+		- [Device/OS detection](#deviceos-detection)
+		- [Project settings](#project-settings)
+	- [Hardware requirements 💾](#hardware-requirements-)
+		- [GPU quality](#gpu-quality)
+		- [Graphic quality presets](#graphic-quality-presets)
+			- [Auto-discover](#auto-discover)
+		- [Apply graphics](#apply-graphics)
+	- [Input 🎮](#input-)
+	- [MotionInput ↔️](#motioninput-️)
+		- [How to use](#how-to-use)
+		- [Default Input map](#default-input-map)
+		- [Inputs](#inputs)
 
 # Installation 📦
 
@@ -608,4 +627,514 @@ print(generator.generate_surname()) // Output: "Doe" (Example)
 
 // Change the repository on existing generator
 generator.change_repository(new_repository)
+```
+
+## Files 🗃️
+
+### OmniKitFileHelper
+Generic methods to work with files inside Godot
+
+```swift
+// Validate a file path to see if it is valid and can be worked with.
+static func filepath_is_valid(path: String) -> bool
+
+// Validate a directory path to see if it is valid and can be worked with.
+static func dirpath_is_valid(path: String) -> bool
+
+// Validate a directory path where the godot executable folder is.
+static func directory_exist_on_executable_path(directory_path: String) -> bool
+
+// Get all the files recursively on the path provided, a RegEx can be passed to filter the files to retrieve.
+static func get_files_recursive(path: String, regex: RegEx = null) -> Array
+
+// Copy content of a folder recursively into another overwrite existing files on the process
+static func copy_directory_recursive(from_dir: String, to_dir: String) -> Error
+
+// Remove all the files recursively on the path provided, a RegEx can be passed to filter what files to delete.
+static func remove_files_recursive(path: String, regex: RegEx = null) -> Error
+
+// This is actually a shortcut to retrieve all the .pck files on a folder, it simply uses get_files_recursive with a RegEx behind the scenes.
+static func get_pck_files(path: String) -> Array
+
+static func get_resource_files(path: String)
+
+static func get_scene_files(path: String) -> Array
+
+static func get_script_files(path: String) -> Array
+
+static func get_shader_files(path: String) -> Array
+
+// Given the UID, return the path to the linked file
+static func uid_to_file(uid: String) -> String
+```
+
+### CSV Reader
+This `OmniKitCSVReader` provides methods to work with `csv` files mainly parsing or retrieving metadata.
+
+`static read(path: String, as_dictionary: bool = true): Variant`
+
+This function loads a CSV/TSV file from the specified path and returns the parsed data, when as_dictionary is false the first array will be the columns. Although the function name only includes `.csv` it also supports `.tsv` files that separate by tabs instead of commas
+
+- **path (String):** The absolute path to the CSV/TSV file.
+- **as_dictionary (bool, optional):** Defaults to true. When set to true, the function attempts to convert the parsed data into an array of dictionaries, using the first line of the CSV as column headers. If false, the function returns an array of arrays, where each inner array represents a row of data where the first row are the column headers.
+
+Returns:
+- **Variant:** The parsed CSV data can be either an array of dictionaries *(if as_dictionary is true)* or an array of arrays.
+**ERR_PARSE_ERROR (int):** This error code is returned if there are issues opening the file, parsing the CSV data, or encountering data inconsistencies.
+
+For this example was used the `currency.csv` that you can find in this website [https://wsform.com/knowledgebase/sample-csv-files/](https://wsform.com/knowledgebase/sample-csv-files/)
+
+```swift
+for line in OmniKitCSVReader.read("res://currency.csv", false):
+	print_rich("ARRAY LINE ", line)
+
+// Output of
+[
+	ARRAY LINE ["Code", "Symbol", "Name"] // Headers
+	ARRAY LINE ["AED", "د.إ", "United Arab Emirates d"]
+	ARRAY LINE ["AFN", "؋", "Afghan afghani"]
+	ARRAY LINE ["ALL", "L", "Albanian lek"]
+	ARRAY LINE ["AMD", "AMD", "Armenian dram"]
+	ARRAY LINE ["ANG", "ƒ", "Netherlands Antillean gu"]
+	ARRAY LINE ["AOA", "Kz", "Angolan kwanza"]
+	ARRAY LINE ["ARS", "$", "Argentine peso"]
+	ARRAY LINE ["AUD", "$", "Australian dollar"]
+	ARRAY LINE ["AWG", "Afl.", "Aruban florin"]
+	ARRAY LINE ["AZN", "AZN", "Azerbaijani manat"]
+	ARRAY LINE ["BAM", "KM", "Bosnia and Herzegovina "]
+	// ....
+]
+
+for line in OmniKitCSVReader.read("res://currency.csv"):
+	print_rich("DICT LINE ", line)
+
+// Output of
+[
+	DICT LINE { "Code": "AED", "Symbol": "د.إ", "Name": "United Arab Emirates d" }
+	DICT LINE { "Code": "AFN", "Symbol": "؋", "Name": "Afghan afghani" }
+	DICT LINE { "Code": "ALL", "Symbol": "L", "Name": "Albanian lek" }
+	DICT LINE { "Code": "AMD", "Symbol": "AMD", "Name": "Armenian dram" }
+	DICT LINE { "Code": "ANG", "Symbol": "ƒ", "Name": "Netherlands Antillean gu" }
+	DICT LINE { "Code": "AOA", "Symbol": "Kz", "Name": "Angolan kwanza" }
+	DICT LINE { "Code": "ARS", "Symbol": "$", "Name": "Argentine peso" }
+	DICT LINE { "Code": "AUD", "Symbol": "$", "Name": "Australian dollar" }
+	DICT LINE { "Code": "AWG", "Symbol": "Afl.", "Name": "Aruban florin" }
+	DICT LINE { "Code": "AZN", "Symbol": "AZN", "Name": "Azerbaijani manat" }
+	DICT LINE { "Code": "BAM", "Symbol": "KM", "Name": "Bosnia and Herzegovina " }
+]
+```
+
+### JSON Reader
+This `OmniKitJSONHelper` provides a static utility function to safely load and parse JSON data from a file path, supporting both standard and encrypted files.
+
+
+The static function `parse()` attempts to open a file, read its content, and parse it as a JSON object (*either a Dictionary or an Array)*. It includes robust error checking for file access and JSON parsing.
+
+**Returns:**
+
+- **Variant:** The parsed JSON data *(as a Godot Dictionary or Array)* if successful.
+- **{}:** An empty Dictionary if any error occurs during file opening, JSON parsing, or if the file extension is incorrect. Errors are printed using `push_error`.
+
+```swift
+static func parse(path: String, encrypted_key: String = "") -> Variant
+
+//...
+
+var result = OmniKitJSONHelper.parse("res://currency.json")
+```
+
+## Geometry 🔳
+Functions to obtain information on sizes, measurements or to draw specific shapes
+
+```swift
+// Shorcuts to create a MeshInstance3D with a specific mesh shape
+func create_plane_mesh(size: Vector2 = Vector2.ONE) -> MeshInstance3D
+
+func create_quad_mesh(size: Vector2 = Vector2.ONE) -> MeshInstance3D
+
+func create_prism_mesh(size: Vector3 = Vector3.ONE, left_to_right: float = 0.5) -> MeshInstance3D
+
+func create_cilinder_mesh(height: float = 2.0, top_radius: float = 0.5, bottom_radius: float = 0.5) -> MeshInstance3D
+
+func create_sphere_mesh(height: float = 2.0, radius: float = 0.5, is_hemisphere: bool = false) -> MeshInstance3D
+
+func create_capsule_mesh(height: float = 2.0, radius: float = 0.5) -> MeshInstance3D
+
+
+// Get a random position as `Vector3` on any mesh shape surface
+func get_random_mesh_surface_position(target: MeshInstance3D) -> Vector3
+
+// Get a random position as `Vector2` from the inside of a circle with the given `radius`
+func random_inside_unit_circle(position: Vector2, radius: float = 1.0) -> Vector
+
+// Get a random position as `Vector2` from a circunference
+func random_on_unit_circle(position: Vector2) -> Vector2
+
+// Get a random point as Vector2 in the provided Rect2
+func random_point_in_rect(rect: Rect2) -> Vector2
+
+// Get a random point as Vector2 in annulus _(a donut shape)_ with provided center and radius provided
+func random_point_in_annulus(center, radius_small, radius_large) -> Vector2
+
+// Get the bounding box as `Rect2` from the polygon points provided
+func polygon_bounding_box(polygon: PackedVector2Array) -> Rect2
+
+func is_valid_polygon(points: PackedVector2Array) -> bool
+
+func calculate_polygon_area(polygon: PackedVector2Array) -> float
+
+func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array
+
+// https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
+func segment_circle_intersects(start, end, center, radius) -> Array
+
+// Returns intersection point(s) of a segment from 'a' to 'b' with a given rect, in order of increasing distance from 'a'
+func segment_rect_intersects(a, b, rect) -> Array
+
+// https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Rectangle_difference
+func rect_difference(r1: Rect2, r2: Rect2) -> Array
+
+func volume_of_sphere(radius: float) -> float
+
+func volume_of_hollow_sphere(outer_radius: float, inner_radius: float) -> float
+
+func area_of_circle(radius: float) -> float
+
+func area_of_triangle(base: float, perpendicular_height: float) -> float
+```
+
+## Hardware detector 💻
+The `OmniKitHardwareDetector` is a static helper class that retrieves comprehensive information about the current execution environment, including operating system details, hardware specifications, and project settings.
+
+### Accessible variables
+```swift
+static var engine_version: String 
+static var device: String
+static var platform: String
+static var distribution_name: String
+static var video_adapter_name: String
+static var processor_name: String
+static var processor_count: int
+static var usable_threads: int 
+static var computer_screen_size
+```
+
+### Device/OS detection
+Useful methods to detect the device on which the game is running and the operating system
+
+```swift
+static func is_steam_deck() -> bool
+
+static func is_mobile() -> bool
+
+static func is_android() -> bool
+
+static func is_ios() -> bool
+
+static func is_windows() -> bool
+
+static func is_linux() -> bool
+
+static func is_mac() -> bool
+
+static func is_desktop() -> bool
+
+static func is_web() -> bool
+```
+
+### Project settings
+Useful methods to detect Godot project settings related to renderer.
+
+```swift
+// Returns the rendering method that this Godot project is using (Forward+, Compatibility or Mobile)
+static func renderer() -> String
+
+static func renderer_is_forward() -> bool
+
+static func render_is_compatibility() -> bool
+
+static func renderer_is_mobile() -> bool
+
+static func is_multithreading_enabled() -> bool
+
+static func is_exported_release() -> bool
+
+static func has_fsr() -> bool
+```
+
+## Hardware requirements 💾
+> [!NOTE]
+> This class was inspired by the [official graphic settings demo](https://github.com/godotengine/godot-demo-projects/blob/master/3d/graphics_settings)
+
+The `OmniKitHardwareRequirements` class provides a mechanism to automatically detect the appropriate graphics quality preset based on the user's GPU and apply those settings dynamically to `WorldEnvironment` and `DirectionalLight3D` nodes.The quality tiers and settings configurations are based on established practices and the official Godot Demo Projects repository for Godot 4.
+
+
+The `GraphicQualityDisplay` inner class serves as a data container to map a specific Godot Project Setting or Viewport property to a desired value.
+
+```swift
+class GraphicQualityDisplay:
+	var project_setting: String
+	var property_name: StringName
+	var value: Variant
+
+// Example
+GraphicQualityDisplay.new("rendering/anti_aliasing/quality/msaa_3d", &"AntiAliasing 3D", Viewport.MSAA_DISABLED),
+```
+
+The `QualityPreset` is just an enum that can be used as information
+
+```swift
+enum QualityPreset {
+	Low,
+	Medium,
+	High,
+	Ultra
+}
+```
+
+### GPU quality
+An accurate list of current GPUs in the market to detect the user machine capabilities
+
+`static var gpu_quality: Dictionary[QualityPreset, String]`
+
+
+### Graphic quality presets
+A set of premade `GraphicQualityClass` that contains multiple options ready to set in your game based on the `QualityPreset`
+
+`static var graphics_quality_presets: Dictionary[QualityPreset, Array]`
+
+#### Auto-discover
+An auto-detection function that returns a `QualityPreset`based on the machine your game is currently running
+
+```swift
+static func auto_discover_graphics_quality() -> QualityPreset
+
+//...
+
+OmniKitHardwareRequirements.auto_discover_graphics_quality() // QualityPreset.High
+```
+
+### Apply graphics
+
+```swift
+static func apply_graphics_on_directional_light(directional_light: DirectionalLight3D, quality_preset: QualityPreset = QualityPreset.Medium) -> void:
+
+static func apply_graphics_on_environment(world_environment: WorldEnvironment, quality_preset: QualityPreset = QualityPreset.Medium) -> void
+```
+
+## Input 🎮
+
+This section introduces the `OmniKitInputHelper`, a collection of helpful functions for handling common input-related tasks in your game. It acts as a shortcut to avoid repetitive code for frequently used input checks.
+
+
+```swift
+static func is_mouse_left_click(event: InputEvent) -> bool
+
+static func is_mouse_right_click(event: InputEvent) -> bool
+
+static func is_mouse_left_button_pressed(event: InputEvent) -> bool
+
+static func is_mouse_right_button_pressed(event: InputEvent) -> bool
+
+static func is_mouse_left_released(event: InputEvent)
+
+static func is_mouse_middle_released(event: InputEvent)
+
+static func is_mouse_right_released(event: InputEvent)
+
+static func is_mouse_button(event: InputEvent) -> bool
+
+
+static func is_mouse_wheel(event: InputEvent) -> bool
+
+static func is_mouse_wheel_up(event: InputEvent) -> bool
+
+static func is_mouse_wheel_down(event: InputEvent) -> bool
+
+static func is_mouse_wheel_right(event: InputEvent) -> bool
+
+static func is_mouse_wheel_left(event: InputEvent) -> bool
+
+static func is_mouse_wheel_up_or_down(event: InputEvent) -> bool
+
+static func is_mouse_wheel_right_or_left(event: InputEvent) -> bool
+
+// In certain cases (e.g input remapping) you want to translate the double clicks to single to ignore them.
+static func double_click_to_single(event: InputEvent) -> InputEvent
+
+// Get the relative motion regardless of viewport resolution and scale. This is useful when getting mouse motion to move
+// the camera in a First Person Controller for example
+static func mouse_relative_motion(event: InputEvent, scene_tree: SceneTree) -> Vector2
+
+static func is_mouse_visible() -> bool
+
+static func is_mouse_visible_or_confined() -> bool
+
+static func is_mouse_captured() -> bool
+
+static func is_mouse_confined() -> bool
+
+static func show_mouse_cursor() -> void
+
+static func show_mouse_cursor_confined() -> void
+
+static func capture_mouse() -> void
+
+static func hide_mouse_cursor() -> void
+
+static func hide_mouse_cursor_confined() -> void
+	
+
+static func any_key_modifier_is_pressed() -> bool
+
+static func shift_modifier_pressed() -> bool
+
+static func ctrl_modifier_pressed() -> bool
+
+static func alt_modifier_pressed() -> bool
+
+static func is_controller_button(event: InputEvent) -> bool
+	
+static func is_controller_axis(event: InputEvent) -> bool
+	
+static func is_gamepad_input(event: InputEvent) -> bool
+
+// Determines if a numeric key (including numpad keys) was pressed in the InputEvent.
+static func numeric_key_pressed(event: InputEvent) -> bool
+
+// Translates a raw InputEventKey into a human-readable string representation. 
+// This is useful for displaying what key was pressed, including modifiers like "ctrl" or "shift" and physical key names.
+static func readable_key(key: InputEvent) -> String
+
+
+static func action_just_pressed_and_exists(action: String) -> bool
+
+static func action_pressed_and_exists(action: String, event: InputEvent = null) -> bool
+
+static func action_just_released_and_exists(action: String) -> bool
+
+static func action_released_and_exists(event: InputEvent, action: String) -> bool
+
+static func is_any_action_just_pressed(actions: Array = [])
+
+static func is_any_action_pressed(actions: Array, event: InputEvent = null)
+
+static func is_any_action_released(actions: Array, event: InputEvent)
+
+static func release_input_actions(actions: Array[StringName] = [])
+
+static func get_all_inputs_for_action(action: String) -> Array[InputEvent]
+	
+static func get_keyboard_inputs_for_action(action: String) -> Array[InputEvent]
+
+// Output example: InputEventKey: keycode=4194309 (Enter), mods=none, physical=false, pressed=false, echo=false
+static func get_keyboard_input_for_action(action: String) -> InputEvent
+
+static func get_joypad_inputs_for_action(action: String) -> Array[InputEvent]
+
+static func get_joypad_input_for_action(action: String) -> InputEvent
+```
+
+## MotionInput ↔️
+The `OmniKitMotionInput` simplifies handling and transforming player input directions in your Godot games. It provides various properties and functions to access and manipulate input based on your needs.
+
+
+### How to use
+In order to update the inputs, the method `update` needs to be called manually, in this example we will be calling it on the `_process` for better input precision.
+
+```swift
+class_name Player extends CharacterBody3D
+//...
+
+var motion_input: OmniKitMotionInput = OmniKitMotionInput.new()
+// Optionally can provide a Node3D to calculate the world_coordinate_space_direction using the provided node Basis
+var motion_input: OmniKitMotionInput = OmniKitMotionInput.new(self)
+
+
+func _ready() -> void:
+	// Remap an input map action with chained action setters
+	motion_input.change_move_forward_action(&"forward").change_move_back_action(&"back")
+
+
+func _process(delta: float) -> void:
+	// Detect new inputs and save previous ones
+	motion_input.update()
+//...
+```
+
+### Default Input map
+This class provides a default input map actions to detect the inputs but can be changed for the ones that you use in your project with the action setters.
+
+```swift
+var move_right_action: StringName = &"move_right"
+var move_left_action: StringName = &"move_left"
+var move_forward_action: StringName = &"move_forward"
+var move_back_action: StringName = &"move_back"
+
+// Right joystick support
+var up_motion_action: StringName = &"up_motion"
+var down_motion_action: StringName = &"down_motion"
+var left_motion_action: StringName = &"left_motion"
+var right_motion_action: StringName = &"right_motion"
+```
+
+```swift
+// Action setters
+func change_move_right_action(new_action: StringName) -> OmniKitMotionInput
+
+func change_move_left_action(new_action: StringName) -> OmniKitMotionInput
+
+func change_move_forward_action(new_action: StringName) -> OmniKitMotionInput
+
+func change_move_back_action(new_action: StringName) -> OmniKitMotionInput
+
+
+func change_motion_right_action(new_action: StringName) -> OmniKitMotionInput
+
+func change_motion_left_action(new_action: StringName) -> OmniKitMotionInput
+
+func change_motion_up_action(new_action: StringName) -> OmniKitMotionInput
+
+func change_motion_down_action(new_action: StringName) -> OmniKitMotionInput:
+```
+
+### Inputs
+
+```swift
+var input_direction: Vector2
+var input_direction_deadzone_square_shape: Vector2
+var input_direction_horizontal_axis: float
+var input_direction_vertical_axis: float
+var input_axis_as_vector: Vector2
+
+// Right joystick support
+var input_right_motion_horizontal_axis: float
+var input_right_motion_vertical_axis: float
+var input_right_motion_axis_as_vector: Vector2
+var input_right_motion_as_vector: Vector2
+
+var input_direction_horizontal_axis_applied_deadzone: float
+var input_direction_vertical_axis_applied_deadzone: float
+var input_joy_direction_left: Vector2
+var input_joy_direction_right: Vector2
+var world_coordinate_space_direction: Vector3
+
+// Previous frame input
+var previous_input_direction: Vector2
+var previous_input_direction_deadzone_square_shape: Vector2
+var previous_input_direction_horizontal_axis: float
+var previous_input_direction_vertical_axis: float
+var previous_input_axis_as_vector: Vector2
+
+// Right joystick support
+var previous_input_right_motion_horizontal_axis: float
+var previous_input_right_motion_vertical_axis: float
+var previous_input_right_motion_as_vector: Vector2
+var previous_input_right_motion_axis_as_vector: Vector2
+
+var previous_input_direction_horizontal_axis_applied_deadzone: float
+var previous_input_direction_vertical_axis_applied_deadzone: float
+var previous_input_joy_direction_left: Vector2
+var previous_input_joy_direction_right: Vector2
+var previous_world_coordinate_space_direction: Vector3
 ```

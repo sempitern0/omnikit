@@ -131,6 +131,24 @@ static func create_capsule_mesh(height: float = 2.0, radius: float = 0.5) -> Mes
 	
 	return mesh
 
+
+static func volume_of_sphere(radius: float) -> float:
+	return (4.0 / 3.0) * PI * pow(radius, 3)
+	
+
+static func volume_of_hollow_sphere(outer_radius: float, inner_radius: float) -> float:
+	return (4.0 / 3.0) * PI *  (pow(outer_radius, 3) - pow(inner_radius, 3))
+	
+
+static func area_of_circle(radius: float) -> float:
+	return PI * pow(radius, 2) 
+
+
+static func area_of_triangle(base: float, perpendicular_height: float) -> float:
+	return (base * perpendicular_height) / 2.0
+
+
+
 # Time complexity O(n^2), the more complex method is faster, but is harder to write
 static func is_valid_polygon(points: PackedVector2Array) -> bool:
 	if points.size() < 3:

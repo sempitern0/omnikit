@@ -227,23 +227,6 @@ static func add_thousand_separator(number, separator: String = ",") -> String:
 		
 	return result
 
-
-static func volume_of_sphere(radius: float) -> float:
-	return (4.0 / 3.0) * PI * pow(radius, 3)
-	
-
-static func volume_of_hollow_sphere(outer_radius: float, inner_radius: float) -> float:
-	return (4.0 / 3.0) * PI *  (pow(outer_radius, 3) - pow(inner_radius, 3))
-	
-
-static func area_of_circle(radius: float) -> float:
-	return PI * pow(radius, 2) 
-
-
-static func area_of_triangle(base: float, perpendicular_height: float) -> float:
-	return (base * perpendicular_height) / 2.0
-
-
 ## This function assumes that the cardinal direction is in radians unit.
 ## https://en.wikipedia.org/wiki/Cardinal_direction
 static func angle_from_cardinal_direction(cardinal_direction: float) -> float:
