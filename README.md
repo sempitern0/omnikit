@@ -51,6 +51,9 @@
 		- [ColorPalette](#colorpalette)
 		- [ColorGradient](#colorgradient)
 		- [Generate and compare colors](#generate-and-compare-colors)
+	- [Name generator 🏷️](#name-generator-️)
+		- [Custom repositories](#custom-repositories)
+		- [Generate random names](#generate-random-names)
 
 # Installation 📦
 
@@ -528,8 +531,6 @@ func get_gradient(id: StringName) -> ColorGradient
 ```
 
 ### Generate and compare colors
-
-
 ```swift
 // Based on the method, it will call the generate_random_hsv_colors or generate_random_rgb_colors method
 
@@ -553,4 +554,58 @@ func colors_are_similar(color_a: Color, color_b: Color, tolerance: float = 100.0
 
 // Translates a Vector3 or Vector4 to a valid Color. Returns Color.WHITE by default
 func color_from_vector(vec) -> Color:
+```
+
+## Name generator 🏷️
+The `OmniKitNameGenerator` is designed to generate names by utilizing various repositories that allow for multiple combinations. This addon includes a few pre-made repositories for generating fantasy and real life type names that can be found on `res://addons/omnikit/content/names/repositories`.
+
+### Custom repositories
+To create a custom name repository, simply fill the parameters with your desired names. By default, it uses the `OmniKitShuffleBag` data structure to randomize names without immediate repetition. This feature can be disabled by setting the `use_shuffle_bag` variable to `false`.
+
+```swift
+class_name OmniKitNameRepository extends Resource
+
+enum Category {
+	Male,
+	Female,
+	NoGender,
+}
+
+
+@export var id: StringName
+@export var use_shuffle_bag: bool = true
+@export var region: StringName = &"en"
+@export var gender: Category = Category.NoGender
+@export var names: Array[String] = []
+@export var surnames: Array[String] = []
+```
+
+> [!NOTE]
+> ***Multilingual support:*** The region variable *(e.g., set to &"en" for English, &"es" for Spanish, etc.)* is highly useful when managing multiple languages. It allows you to easily identify and select the correct name repository *(e.g., male_human_**en**.tres vs. male_human_**es**.tres)* to ensure names are generated using the appropriate cultural context and language.
+
+### Generate random names
+To begin generating names, initialize an `OmniKitNameGenerator` instance with the desired name repository. You can have multiple generators instantiated simultaneously, each using a different repository. 
+
+```swift
+// Available functions
+func generate(include_surname: bool = true) -> String
+
+func generate_name() -> String
+
+func generate_surname() -> String
+	
+func change_repository(new_repository: OmniKitNameRepository) -> OmniKitNameGenerator
+
+
+// Example usage:
+
+// Instantiate a new generator with a specific repository
+var generator = OmniKitNameGenerator.new(load("res://addons/omnikit/content/names/repositories/real_life/male_human_en.tres"))
+
+print(generator.generate())      // Output: "John Doe" (Example)
+print(generator.generate_name()) // Output: "John" (Example)
+print(generator.generate_surname()) // Output: "Doe" (Example)
+
+// Change the repository on existing generator
+generator.change_repository(new_repository)
 ```

@@ -45,5 +45,3 @@ func change_repository(new_repository: OmniKitNameRepository) -> OmniKitNameGene
 	surnames_bag = OmniKitShuffleBag.new(repository.surnames)
 	
 	return self
-	
-	
