@@ -19,7 +19,7 @@
 
 - [Installation 📦](#installation-)
 - [Autoloads](#autoloads)
-	- [OmnikitWindowManager 🖥️](#omnikitwindowmanager-️)
+	- [WindowManager 🖥️](#windowmanager-️)
 		- [Available signals](#available-signals)
 		- [Automatically centered window position](#automatically-centered-window-position)
 		- [Improved quit game](#improved-quit-game)
@@ -27,12 +27,12 @@
 		- [Screen related](#screen-related)
 		- [Screenshot](#screenshot)
 		- [Parallax](#parallax)
-	- [OmniKiGamepadControllerManager 🎮](#omnikigamepadcontrollermanager-)
+	- [GamepadControllerManager 🎮](#gamepadcontrollermanager-)
 		- [Controller connected \& disconnected](#controller-connected--disconnected)
 		- [Gamepad names and buttons](#gamepad-names-and-buttons)
 		- [Current controller information](#current-controller-information)
 		- [Methods](#methods)
-	- [OmniKitNetworkHandler 🌐](#omnikitnetworkhandler-)
+	- [NetworkHandler 🌐](#networkhandler-)
 		- [Signals](#signals)
 		- [Constants](#constants)
 		- [Accessible variables](#accessible-variables)
@@ -86,6 +86,20 @@
 		- [Node Positioner](#node-positioner)
 		- [Node Traversal](#node-traversal)
 		- [Node Remover](#node-remover)
+	- [Data structures 🛠️](#data-structures-️)
+		- [Array](#array)
+		- [Dictionary](#dictionary)
+		- [Enums](#enums)
+		- [Hashset](#hashset)
+			- [How to use](#how-to-use-1)
+			- [Methods](#methods-2)
+		- [Jobs ⏳](#jobs-)
+		- [Semantic version *(Semver)*](#semantic-version-semver)
+			- [Methods](#methods-3)
+		- [Shuffle Bag 🎲](#shuffle-bag-)
+		- [Vector helper ➖](#vector-helper-)
+			- [Constants](#constants-2)
+			- [Methods](#methods-4)
 
 # Installation 📦
 
@@ -100,7 +114,7 @@ To better understand what branch to choose from for which Godot version, please 
 
 # Autoloads
 
-## OmnikitWindowManager 🖥️
+## WindowManager 🖥️
 
 The `OmnikitWindowManager` is a globally accessible Autoload that simplifies common tasks related to screen resolution, window centering, mobile safe areas, and provides utilities for capturing screenshots and adapting parallax backgrounds.
 
@@ -251,7 +265,7 @@ func adapt_parallax_background_to_horizontal_viewport(parallax_background: Paral
 func adapt_parallax_background_to_vertical_viewport(parallax_background: ParallaxBackground, viewport: Rect2 = get_window().get_visible_rect()) -> void
 ```
 
-## OmniKiGamepadControllerManager 🎮
+## GamepadControllerManager 🎮
 
 The `OmniKiGamepadControllerManager` allows you to manipulate and obtain information from connected game controllers. Most of the methods Tare for obtaining information from the gamepad.
 
@@ -335,7 +349,7 @@ func current_controller_is_switch_joycon_right() -> bool
 func current_controller_is_switch_joycon_left() -> bool
 ```
 
-## OmniKitNetworkHandler 🌐
+## NetworkHandler 🌐
 The `OmniKitNetworkHandler` is a comprehensive utility designed to simplify network, connectivity, and multiplayer operations in Godot. It provides essential tools for starting servers/clients using Godot's ENetMultiplayerPeer, handling local network discovery via UDP broadcasting, and performing external connectivity checks.
 
 ### Signals
@@ -1743,5 +1757,415 @@ func remove_and_queue_free_children(node: Node) -> void
 func queue_free_children(node: Node) -> void
 
 func free_children(node: Node, except: Array = []) -> void:
+```
 
+## Data structures 🛠️
+This classes help to handle known data structures and simplify many operations by abstracting their logic and exposing them as a single function
+
+### Array
+The `OmniKitArrayHelper` class provides useful functions to work with Arrays and manage complex operations with ease.
+
+```swift
+
+static func only_has_numbers(array: Array[Variant]) -> bool
+	
+static func remove_numbers(array: Array[Variant]) -> Array
+
+static func sum(values: Array[int]) -> int
+
+static func sum_floats(values: Array[float]) -> float
+
+static func repeat(element: Variant, times: int) -> Array[Variant]
+
+// Flatten any array with n dimensions recursively
+static func flatten(array: Array[Variant])
+
+static func pick_random_values(array: Array[Variant], items_to_pick: int = 1, duplicates: bool = true) -> Array[Variant]
+
+static func remove_duplicates(array: Array[Variant]) -> Array[Variant]
+	
+static func remove_falsy_values(array: Array[Variant]) -> Array[Variant]
+	
+static func middle_element(array: Array[Variant])
+
+// This method works in a circular way, this means that is the value is the last, it returns the first one in the array
+static func next_element_from_value(array: Array[Variant], value: Variant) -> Variant
+
+// This method works in a circular way, this means that is the value is the first, it returns the last one in the array
+static func previous_element_from_value(array: Array[Variant], value: Variant) -> Variant
+
+//  Return a dictionary with the array value as key and the frequency count as value
+static func frequency(array: Array[Variant]) -> Dictionary
+
+//  To detect if a contains elements of b
+static func intersects(a: Array[Variant], b: Array[Variant]) -> bool
+
+static func intersected_elements(a: Array[Variant], b: Array[Variant]) -> Array[Variant]
+
+static func merge_unique(first: Array[Variant], second: Array[Variant]) -> Array[Variant]
+
+// Separates an Array into smaller array:
+// argument 1: array that is going to be converted
+// argument 2: size of these smaller arrays
+// argument 3: writes smaller arrays even if they aren't full
+// Example:
+// ArrayHelper.chunk[[1,2,3,4,5,6,7,8,9], 3]
+// [1,2,3,4,5,6,7,8,9] -> [[1,2,3], [4,5,6], [7,8,9]]
+// Example 2:
+// ArrayHelper.chunk([1,2,3,4,5,6,7,8,9], 4)
+// [1,2,3,4,5,6,7,8,9] -> [[1, 2, 3, 4], [5, 6, 7, 8], [9]]
+static func chunk(array: Array[Variant], size: int, only_chunks_with_same_size: bool = false)
+```
+
+### Dictionary
+The `OmniKitDictionaryHelper` class provides useful functions to work with Dictionaries and manage complex operations with ease.
+
+
+```swift
+static func contain_all_keys(target: Dictionary, keys: Array[String]) -> bool
+
+static func contain_any_key(target: Dictionary, keys: Array[String]) -> bool
+
+static func reverse_key_value(source_dict: Dictionary) -> Dictionary
+
+static func merge_recursive(dest: Dictionary, source: Dictionary) -> void
+
+// Transform the object used as dictionary key with the selected property, for example the object id
+static func transform_dictionary_key(source_dict: Dictionary, property: String) -> Dictionary:
+```
+
+### Enums
+The `OmniKitEnumHelper` class provides useful functions to work with Enums.
+
+```swift
+func random_value(enum: Variant) -> Variant
+
+func random_value_as_str(enum: Variant) -> StringName:
+
+func value_to_str(enum: Variant, value: int) -> StringName
+
+func values_to_str(enum: Variant) -> Array[StringName]
+```
+
+### Hashset
+The `OmniKitHashSet` is a collection of elements where each element is unique, and the order is generally not significant.
+
+#### How to use
+```swift
+// Initialize the HashSet with initial values optionally
+
+var hashset = OmniKitHashSet.new()
+
+// Access the current values
+hashset.values
+
+// Add the new values, only the unique values from this array will be merged
+hashset.add([1,2,3,3])
+```
+
+#### Methods
+```swift
+var values: Array[Variant] = []
+
+func merge(new_values: Array[Variant] = []) -> void
+
+func add(value: Variant) -> void
+	
+func duplicate() -> OmniKitHashSet
+
+func remove(value: Variant) -> void
+
+func has(value: Variant) -> bool
+
+func size() -> int
+
+func is_empty() -> bool
+
+func equals(hashset: OmniKitHashSet) -> bool
+
+func front() -> Variant
+
+func back() -> Variant
+
+func pop_back() -> Variant
+
+func pop_front() -> Variant
+
+func clear() -> void
+
+```
+
+### Jobs ⏳
+The `OmniKitJobs` is a simple job implementation that allows to wait for multiple callables to finish.
+
+```swift
+// EXAMPLE:
+var jobs = OmniKitJobs.new()
+
+jobs.add(first_callable)
+jobs.add(second_callable)
+
+await jobs.completed
+```
+
+### Semantic version *([Semver](https://semver.org/))*
+The `OmniKitSemanticVersion` class provides a structured way to represent and compare semantic version numbers, following the [Semantic Versioning 2.0.0](https://semver.org/) specification.
+
+- `major, minor, patch`: Integer values representing the major, minor, and patch version numbers, respectively.
+- `state`: An optional string for pre-release or build metadata _(e.g., "-rc.1", "-alpha.2")_
+
+```swift
+// Create a new SemanticVersion object
+var version = OmniKitSemanticVersion.parse(1, 1, 0, "rc-1")
+
+// Or use the static parse function
+var version = OmniKitSemanticVersion.parse("1.1.0")
+version.state = "rc-1"
+```
+
+#### Methods
+```swift
+func _init(_major: int, _minor: int, _patch: int, _state: String = "") -> void:
+
+// Parses a string representation of a semantic version number (e.g., "1.2.3") and returns a OmniKitSemanticVersion object.
+//This method will only parse the major, minor, and patch numbers, and ignore non digit or period characters.
+static func parse(value: String) -> OmniKitSemanticVersion
+
+// Compares this OmniKitSemanticVersion instance with another and returns true if they are equal, false otherwise. Equality is determined by comparing the major, minor, and patch numbers.
+func equals(other: OmniKitSemanticVersion) -> bool
+
+// Compares this OmniKitSemanticVersion instance with another and returns true if this instance is greater than the other, false otherwise. Comparison follows semantic versioning rules (major > minor > patch). The state variable is not used in the comparison.
+func is_greater(other: OmniKitSemanticVersion) -> bool
+
+//Returns a string representation of the OmniKitSemanticVersion in the format "vMajor.Minor.PatchState" (e.g., "v1.2.3-rc.1").
+func _to_string() -> String
+```
+
+### Shuffle Bag 🎲
+The `OmniKitShuffleBag` implements a shuffle bag structure, useful for selecting random elements without immediate replacement. Once the inner bag is emptied, it is automatically refilled and reshuffled.
+
+```swift
+var names_bag = OmniKitShuffleBag.new(["John", "Maria", "Celeste"])
+
+
+// Retrieve a random element, this element will not be appear again until the bag is reshuffled
+names_bag.pick_random() // "Maria"
+names_bag.pick_randoms(2) // "John", "Celeste"
+
+// Methods
+func _init(array: Array[Variant]) -> void
+
+func populate(array: Array[Variant]) -> void
+	
+func reshuffle() -> void
+
+func pick_random() -> Variant
+
+func pick_randoms(amount: int) -> Variant
+```
+
+### Vector helper ➖
+The `OmniKitVectorHelper` class provides a collection of commonly used vector methods that can simplify your everyday game development tasks. While it offers a wide range of functions, in-depth documentation might not be available for every method. However, the method names themselves are designed to be clear and descriptive.
+
+#### Constants
+
+```swift
+const directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
+const horizontal_directions_v2: Array[Vector2] = [Vector2.LEFT, Vector2.RIGHT]
+const vertical_directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN]
+
+const directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2.RIGHT]
+const horizontal_directions_v2i: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT]
+const vertical_directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN]
+
+const directions_v3: Array[Vector3] = [
+	Vector3.UP,
+	Vector3.DOWN,
+	Vector3.FORWARD,
+	Vector3.BACK,
+	Vector3.LEFT,
+	Vector3.RIGHT
+]
+
+const directions_v3i: Array[Vector3] = [
+	Vector3i.UP,
+	Vector3i.DOWN,
+	Vector3i.FORWARD,
+	Vector3i.BACK,
+	Vector3i.LEFT,
+	Vector3i.RIGHT
+]
+
+const opposite_directions_v2: Dictionary = {
+	Vector2.UP: Vector2.DOWN,
+	Vector2.DOWN: Vector2.UP,
+	Vector2.RIGHT: Vector2.LEFT,
+	Vector2.LEFT: Vector2.RIGHT
+}
+
+
+const opposite_directions_v2i: Dictionary = {
+	Vector2i.UP: Vector2i.DOWN,
+	Vector2i.DOWN: Vector2i.UP,
+	Vector2i.RIGHT: Vector2i.LEFT,
+	Vector2i.LEFT: Vector2i.RIGHT
+}
+
+
+const opposite_directions_v3: Dictionary = {
+  	Vector3.UP: Vector3.DOWN,
+	Vector3.DOWN: Vector3.UP,
+	Vector3.RIGHT: Vector3.LEFT, 
+	Vector3.LEFT: Vector3.RIGHT, 
+	Vector3.FORWARD: Vector3.BACK, 
+	Vector3.BACK: Vector3.FORWARD
+}
+
+
+const opposite_directions_v3i: Dictionary = {
+  	Vector3i.UP: Vector3i.DOWN,
+	Vector3i.DOWN: Vector3i.UP,
+	Vector3i.RIGHT: Vector3i.LEFT, 
+	Vector3i.LEFT: Vector3i.RIGHT, 
+	Vector3i.FORWARD: Vector3i.BACK, 
+	Vector3i.BACK: Vector3i.FORWARD
+}
+```
+
+#### Methods
+
+```swift
+// The up_direction is the Vector pointing upwards, used to determine what is a wall and what is a floor (or a ceiling) when calling move_and_slide().
+// This is the common direction where we want to obtain the opposite to act as gravity but any normalized vector can be used
+static func up_direction_opposite_vector2(up_direction: Vector2) -> Vector2
+
+static func up_direction_opposite_vector2i(up_direction: Vector2i) -> Vector2i
+
+static func up_direction_opposite_vector3(up_direction: Vector3) -> Vector3
+
+static func up_direction_opposite_vector3i(up_direction: Vector3i) -> Vector3i
+
+// Converts Vectors like Vector3(1, 0, 0) into Vector3(0, 1, 1)
+static func invert_vector3(vector: Vector3) -> Vector3
+
+func generate_2d_random_directions_using_degrees(num_directions: int = 10, origin: Vector2 = Vector2.UP, min_angle: float = 0.0, max_angle: float = 360.0) -> Array[Vector2]
+
+func generate_2d_random_directions_using_radians(num_directions: int = 10, origin: Vector2 = Vector2.UP, min_angle: float = 0.0, max_angle: float = 6.2831853072) -> Array[Vector2]
+
+func generate_3d_random_directions_using_degrees(num_directions: int = 10, origin: Vector3 = Vector3.UP, min_angle: float = 0.0, max_angle: float = 360.0) -> Array[Vector3]
+
+func generate_3d_random_directions_using_radians(num_directions: int = 10, origin: Vector3 = Vector3.UP, min_angle: float = 0.0, max_angle: float = 6.2831853072) -> Array[Vector3]
+
+
+func generate_random_angle_in_radians(min_angle: float = 0.0, max_angle: float = 6.2831853072) -> float
+
+func generate_random_angle_in_degrees(min_angle: float = 0.0, max_angle: float = 360.0) -> float
+
+func generate_2d_random_fixed_direction() -> Vector2
+
+func generate_3d_random_fixed_direction() -> Vector3
+
+func generate_2d_random_direction() -> Vector2
+
+func generate_3d_random_direction() -> Vector3
+
+// Translate -1.0, 0 and 1.0 values from getting the input axis into a Vector2
+func translate_x_axis_to_vector(axis: float) -> Vector2
+
+func translate_y_axis_to_vector(axis: float) -> Vector2
+
+// Normalize the vector taking into account if it's diagonal
+func normalize_vector2(value: Vector2) -> Vector2
+
+func normalize_diagonal_vector2(direction: Vector2) -> Vector2
+
+func normalize_vector3(value: Vector3) -> Vector3
+
+func normalize_diagonal_vector3(direction: Vector3) -> Vector3
+
+func is_diagonal_direction_v2(direction: Vector2) -> bool
+
+func is_diagonal_direction_v3(direction: Vector3) -> bool
+
+// -------------
+// Explanation: These functions perform a distance check between two vectors but use a squared distance comparison instead of calculating the actual distance. They determine if the squared distance between the vector and second_vector is less than or equal to the square of the provided distance.
+
+// Reason for Squared Distance: Calculating the squared distance is computationally cheaper than calculating the actual distance using a square root operation. This can be beneficial for performance optimization when checking distances frequently.
+
+// Use Case: Imagine having a large number of enemies in a game and needing to check if they are within a certain attack range of the player. Using is_withing_distance_squared can be more efficient than calculating the actual distance for each enemy, especially if the result (being within range) is only used for a binary decision (attack or not).
+
+// ----- Important Note -----
+// While using squared distances offers a performance benefit, keep in mind that it doesn't give you the actual distance between the points. If you need the actual distance for calculations or other purposes, you'll need to perform a square root operation on the result of is_withing_distance_squared
+func is_withing_distance_squared_v2(vector: Vector2, second_vector: Vector2, distance: float) -> bool
+
+func is_withing_distance_squared_v3(vector: Vector3, second_vector: Vector3, distance: float) -> bool
+
+// Transforms a rotation angle in radians into a Vector in space
+func direction_from_rotation_v2(rotation: float) -> Vector2
+
+func direction_from_rotation_v3(rotation: float) -> Vector3
+
+func direction_from_rotation_degrees_v2(rotation_degrees: float) -> Vector2
+
+func direction_from_rotation_degrees_v3(rotation_degrees: float) -> Vector3
+
+// Use Case: Imagine creating a dynamic light source that simulates a flickering torch or a spotlight with a slight wobble. You can leverage the rotate_horizontal_random and rotate_vertical_random functions to achieve this effect.
+
+// Rotate the vector in a random horizontal direction [Vector2.RIGHT, Vector2.LEFT]
+func rotate_horizontal_random(origin: Vector3 = Vector3.ONE) -> Vector3
+
+// Rotate the vector in a random vertical direction  [Vector2.UP, Vector2.DOWN]
+func rotate_vertical_random(origin: Vector3 = Vector3.ONE) -> Vector3
+
+
+func vec3_from_color_rgb(color: Color) -> Vector3
+
+func vec3_from_color_hsv(color: Color) -> Vector3
+
+
+func get_position_by_polar_coordinates_v2(center_position: Vector2, angle_radians: float, radius: float) -> Vector2
+
+func get_position_by_polar_coordinates_v3(center_position: Vector3, angle_radians: float, radius: float) -> Vector3
+
+
+// -------------
+//Also known as the "city distance" or "L1 distance". It measures the distance between two points as the sum of the absolute differences of their coordinates in each dimension.
+
+// Explanation: These functions calculate the Manhattan distance (also known as L1 distance or city block distance) between two points. It represents the total distance traveled by moving horizontally and vertically along a grid, ignoring any diagonal movement.
+
+// Use Case: Imagine a pathfinding algorithm on a grid-based map. Manhattan distance can be used to estimate the distance between two points on the grid, as **movement is restricted to horizontal and vertical steps.
+func distance_manhattan_v2(a: Vector2, b: Vector2) -> float
+func distance_manhattan_v3(a: Vector3, b: Vector3) -> float
+func length_manhattan_v2(a : Vector2) -> float
+func length_manhattan_v3(a : Vector3) -> float
+
+// -------------
+// Also known as the "chess distance" or "L∞ distance". It measures the distance between two points as the greater of the absolute differences of their coordinates in each dimension.
+
+// Explanation: These functions calculate the Chebyshev distance *(also known as L∞ distance or chessboard distance)* between two points. It represents the maximum absolute difference of the coordinates between the points, similar to a king's movement in chess (only horizontal, vertical, or diagonal steps of one square).
+
+// Use Case: Imagine a tower defense game where enemies can only move horizontally or vertically along pre-defined paths. Chebyshev distance can be used to determine the enemy's "attack range" based on the maximum distance they can travel in a single move.
+func distance_chebyshev_v2(a: Vector2, b: Vector2) -> float
+func distance_chebyshev_v3(a: Vector3, b: Vector3) -> float
+func length_chebyshev_v2(a : Vector2) -> float
+func length_chebyshev_v3(a : Vector3) -> float
+
+// -------------
+// Explanation: These functions calculate the closest point on a line segment (defined by points a and b) to a third point c. Additionally, they clamp the result to ensure the closest point lies within the line segment (between a and b).
+
+// Use Case: Imagine a character trying to navigate around an obstacle. This function can be used to find the closest point on the obstacle's edge (line segment) that the character can reach from their current position (c).
+func closest_point_on_line_clamped_v2(a: Vector2, b: Vector2, c: Vector2) -> Vector2
+func closest_point_on_line_clamped_v3(a: Vector3, b: Vector3, c: Vector3) -> Vector3
+
+
+// -------------
+// This function is similar to the previous one but does not clamp the result. It calculates the closest point on the line segment defined by a and b to a third point c. It uses the same vector operations as the previous closest_point_on_line_clamped_v2 function.
+
+// Explanation: These functions are similar to the clamped versions, but they calculate the closest point on the line segment without clamping. The non-normalized versions return the actual vector representing the closest point, while the normalized versions might return a parameter along the line segment that represents the closest point.
+
+// Use Case: Imagine a projectile being fired towards a moving target. These functions can be used to determine the point on the target's projected path (line segment) that the projectile is most likely to collide with, even if the collision happens outside the actual line segment itself.
+func closest_point_on_line_v2(a: Vector2, b: Vector2, c: Vector2) -> Vector2
+func closest_point_on_line_v3(a: Vector3, b: Vector3, c: Vector3) -> Vector3
+func closest_point_on_line_normalized_v2(a: Vector2, b: Vector2, c: Vector2) -> float
+func closest_point_on_line_normalized_v3(a: Vector3, b: Vector3, c: Vector3) -> float
 ```
