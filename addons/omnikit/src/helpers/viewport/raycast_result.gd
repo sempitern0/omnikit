@@ -18,10 +18,10 @@ var property_keys: Array[String] = [
 	"rid"
 ]
 
-func _init(hitscan_result: Dictionary) -> void:
+func _init(result: Dictionary) -> void:
 	for key: String in property_keys:
-		if hitscan_result.has(key):
-			self[key] = hitscan_result[key]
+		if result.has(key):
+			self[key] = result[key]
 
 
 func collided() -> bool:

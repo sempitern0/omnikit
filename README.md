@@ -86,20 +86,29 @@
 		- [Node Positioner](#node-positioner)
 		- [Node Traversal](#node-traversal)
 		- [Node Remover](#node-remover)
+	- [Vector helper ➖](#vector-helper-)
+			- [Constants](#constants-2)
+			- [Methods](#methods-2)
+	- [Censorer 💢](#censorer-)
+	- [String helper 🔤](#string-helper-)
+		- [Constants](#constants-3)
+		- [Methods](#methods-3)
+	- [Time ⏳](#time-)
+	- [Raycast Result](#raycast-result)
+	- [Camera2D 🎥](#camera2d-)
+	- [Camera3D 🎥](#camera3d-)
+	- [Texture helper 🖼️](#texture-helper-️)
 	- [Data structures 🛠️](#data-structures-️)
 		- [Array](#array)
 		- [Dictionary](#dictionary)
 		- [Enums](#enums)
 		- [Hashset](#hashset)
 			- [How to use](#how-to-use-1)
-			- [Methods](#methods-2)
+			- [Methods](#methods-4)
 		- [Jobs ⏳](#jobs-)
 		- [Semantic version *(Semver)*](#semantic-version-semver)
-			- [Methods](#methods-3)
+			- [Methods](#methods-5)
 		- [Shuffle Bag 🎲](#shuffle-bag-)
-		- [Vector helper ➖](#vector-helper-)
-			- [Constants](#constants-2)
-			- [Methods](#methods-4)
 
 # Installation 📦
 
@@ -1759,6 +1768,475 @@ func queue_free_children(node: Node) -> void
 func free_children(node: Node, except: Array = []) -> void:
 ```
 
+## Vector helper ➖
+The `OmniKitVectorHelper` class provides a collection of commonly used vector methods that can simplify your everyday game development tasks. While it offers a wide range of functions, in-depth documentation might not be available for every method. However, the method names themselves are designed to be clear and descriptive.
+
+#### Constants
+
+```swift
+const directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
+const horizontal_directions_v2: Array[Vector2] = [Vector2.LEFT, Vector2.RIGHT]
+const vertical_directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN]
+
+const directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2.RIGHT]
+const horizontal_directions_v2i: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT]
+const vertical_directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN]
+
+const directions_v3: Array[Vector3] = [
+	Vector3.UP,
+	Vector3.DOWN,
+	Vector3.FORWARD,
+	Vector3.BACK,
+	Vector3.LEFT,
+	Vector3.RIGHT
+]
+
+const directions_v3i: Array[Vector3] = [
+	Vector3i.UP,
+	Vector3i.DOWN,
+	Vector3i.FORWARD,
+	Vector3i.BACK,
+	Vector3i.LEFT,
+	Vector3i.RIGHT
+]
+
+const opposite_directions_v2: Dictionary = {
+	Vector2.UP: Vector2.DOWN,
+	Vector2.DOWN: Vector2.UP,
+	Vector2.RIGHT: Vector2.LEFT,
+	Vector2.LEFT: Vector2.RIGHT
+}
+
+
+const opposite_directions_v2i: Dictionary = {
+	Vector2i.UP: Vector2i.DOWN,
+	Vector2i.DOWN: Vector2i.UP,
+	Vector2i.RIGHT: Vector2i.LEFT,
+	Vector2i.LEFT: Vector2i.RIGHT
+}
+
+
+const opposite_directions_v3: Dictionary = {
+  Vector3.UP: Vector3.DOWN,
+	Vector3.DOWN: Vector3.UP,
+	Vector3.RIGHT: Vector3.LEFT, 
+	Vector3.LEFT: Vector3.RIGHT, 
+	Vector3.FORWARD: Vector3.BACK, 
+	Vector3.BACK: Vector3.FORWARD
+}
+
+
+const opposite_directions_v3i: Dictionary = {
+  Vector3i.UP: Vector3i.DOWN,
+	Vector3i.DOWN: Vector3i.UP,
+	Vector3i.RIGHT: Vector3i.LEFT, 
+	Vector3i.LEFT: Vector3i.RIGHT, 
+	Vector3i.FORWARD: Vector3i.BACK, 
+	Vector3i.BACK: Vector3i.FORWARD
+}
+```
+
+#### Methods
+```swift
+// The up_direction is the Vector pointing upwards, used to determine what is a wall and what is a floor (or a ceiling) when calling move_and_slide().
+// This is the common direction where we want to obtain the opposite to act as gravity but any normalized vector can be used
+static func up_direction_opposite_vector2(up_direction: Vector2) -> Vector2
+
+static func up_direction_opposite_vector2i(up_direction: Vector2i) -> Vector2i
+
+static func up_direction_opposite_vector3(up_direction: Vector3) -> Vector3
+
+static func up_direction_opposite_vector3i(up_direction: Vector3i) -> Vector3i
+
+// Converts Vectors like Vector3(1, 0, 0) into Vector3(0, 1, 1)
+static func invert_vector3(vector: Vector3) -> Vector3
+
+func generate_2d_random_directions_using_degrees(num_directions: int = 10, origin: Vector2 = Vector2.UP, min_angle: float = 0.0, max_angle: float = 360.0) -> Array[Vector2]
+
+func generate_2d_random_directions_using_radians(num_directions: int = 10, origin: Vector2 = Vector2.UP, min_angle: float = 0.0, max_angle: float = 6.2831853072) -> Array[Vector2]
+
+func generate_3d_random_directions_using_degrees(num_directions: int = 10, origin: Vector3 = Vector3.UP, min_angle: float = 0.0, max_angle: float = 360.0) -> Array[Vector3]
+
+func generate_3d_random_directions_using_radians(num_directions: int = 10, origin: Vector3 = Vector3.UP, min_angle: float = 0.0, max_angle: float = 6.2831853072) -> Array[Vector3]
+
+
+func generate_random_angle_in_radians(min_angle: float = 0.0, max_angle: float = 6.2831853072) -> float
+
+func generate_random_angle_in_degrees(min_angle: float = 0.0, max_angle: float = 360.0) -> float
+
+func generate_2d_random_fixed_direction() -> Vector2
+
+func generate_3d_random_fixed_direction() -> Vector3
+
+func generate_2d_random_direction() -> Vector2
+
+func generate_3d_random_direction() -> Vector3
+
+// Translate -1.0, 0 and 1.0 values from getting the input axis into a Vector2
+func translate_x_axis_to_vector(axis: float) -> Vector2
+
+func translate_y_axis_to_vector(axis: float) -> Vector2
+
+// Normalize the vector taking into account if it's diagonal
+func normalize_vector2(value: Vector2) -> Vector2
+
+func normalize_diagonal_vector2(direction: Vector2) -> Vector2
+
+func normalize_vector3(value: Vector3) -> Vector3
+
+func normalize_diagonal_vector3(direction: Vector3) -> Vector3
+
+func is_diagonal_direction_v2(direction: Vector2) -> bool
+
+func is_diagonal_direction_v3(direction: Vector3) -> bool
+
+// -------------
+// Explanation: These functions perform a distance check between two vectors but use a squared distance comparison instead of calculating the actual distance. They determine if the squared distance between the vector and second_vector is less than or equal to the square of the provided distance.
+
+// Reason for Squared Distance: Calculating the squared distance is computationally cheaper than calculating the actual distance using a square root operation. This can be beneficial for performance optimization when checking distances frequently.
+
+// Use Case: Imagine having a large number of enemies in a game and needing to check if they are within a certain attack range of the player. Using is_withing_distance_squared can be more efficient than calculating the actual distance for each enemy, especially if the result (being within range) is only used for a binary decision (attack or not).
+
+// ----- Important Note -----
+// While using squared distances offers a performance benefit, keep in mind that it doesn't give you the actual distance between the points. If you need the actual distance for calculations or other purposes, you'll need to perform a square root operation on the result of is_withing_distance_squared
+func is_withing_distance_squared_v2(vector: Vector2, second_vector: Vector2, distance: float) -> bool
+
+func is_withing_distance_squared_v3(vector: Vector3, second_vector: Vector3, distance: float) -> bool
+
+// Transforms a rotation angle in radians into a Vector in space
+func direction_from_rotation_v2(rotation: float) -> Vector2
+
+func direction_from_rotation_v3(rotation: float) -> Vector3
+
+func direction_from_rotation_degrees_v2(rotation_degrees: float) -> Vector2
+
+func direction_from_rotation_degrees_v3(rotation_degrees: float) -> Vector3
+
+// Use Case: Imagine creating a dynamic light source that simulates a flickering torch or a spotlight with a slight wobble. You can leverage the rotate_horizontal_random and rotate_vertical_random functions to achieve this effect.
+
+// Rotate the vector in a random horizontal direction [Vector2.RIGHT, Vector2.LEFT]
+func rotate_horizontal_random(origin: Vector3 = Vector3.ONE) -> Vector3
+
+// Rotate the vector in a random vertical direction  [Vector2.UP, Vector2.DOWN]
+func rotate_vertical_random(origin: Vector3 = Vector3.ONE) -> Vector3
+
+
+func vec3_from_color_rgb(color: Color) -> Vector3
+
+func vec3_from_color_hsv(color: Color) -> Vector3
+
+
+func get_position_by_polar_coordinates_v2(center_position: Vector2, angle_radians: float, radius: float) -> Vector2
+
+func get_position_by_polar_coordinates_v3(center_position: Vector3, angle_radians: float, radius: float) -> Vector3
+
+
+// -------------
+//Also known as the "city distance" or "L1 distance". It measures the distance between two points as the sum of the absolute differences of their coordinates in each dimension.
+
+// Explanation: These functions calculate the Manhattan distance (also known as L1 distance or city block distance) between two points. It represents the total distance traveled by moving horizontally and vertically along a grid, ignoring any diagonal movement.
+
+// Use Case: Imagine a pathfinding algorithm on a grid-based map. Manhattan distance can be used to estimate the distance between two points on the grid, as **movement is restricted to horizontal and vertical steps.
+func distance_manhattan_v2(a: Vector2, b: Vector2) -> float
+func distance_manhattan_v3(a: Vector3, b: Vector3) -> float
+func length_manhattan_v2(a : Vector2) -> float
+func length_manhattan_v3(a : Vector3) -> float
+
+// -------------
+// Also known as the "chess distance" or "L∞ distance". It measures the distance between two points as the greater of the absolute differences of their coordinates in each dimension.
+
+// Explanation: These functions calculate the Chebyshev distance *(also known as L∞ distance or chessboard distance)* between two points. It represents the maximum absolute difference of the coordinates between the points, similar to a king's movement in chess (only horizontal, vertical, or diagonal steps of one square).
+
+// Use Case: Imagine a tower defense game where enemies can only move horizontally or vertically along pre-defined paths. Chebyshev distance can be used to determine the enemy's "attack range" based on the maximum distance they can travel in a single move.
+func distance_chebyshev_v2(a: Vector2, b: Vector2) -> float
+func distance_chebyshev_v3(a: Vector3, b: Vector3) -> float
+func length_chebyshev_v2(a : Vector2) -> float
+func length_chebyshev_v3(a : Vector3) -> float
+
+// -------------
+// Explanation: These functions calculate the closest point on a line segment (defined by points a and b) to a third point c. Additionally, they clamp the result to ensure the closest point lies within the line segment (between a and b).
+
+// Use Case: Imagine a character trying to navigate around an obstacle. This function can be used to find the closest point on the obstacle's edge (line segment) that the character can reach from their current position (c).
+func closest_point_on_line_clamped_v2(a: Vector2, b: Vector2, c: Vector2) -> Vector2
+func closest_point_on_line_clamped_v3(a: Vector3, b: Vector3, c: Vector3) -> Vector3
+
+
+// -------------
+// This function is similar to the previous one but does not clamp the result. It calculates the closest point on the line segment defined by a and b to a third point c. It uses the same vector operations as the previous closest_point_on_line_clamped_v2 function.
+
+// Explanation: These functions are similar to the clamped versions, but they calculate the closest point on the line segment without clamping. The non-normalized versions return the actual vector representing the closest point, while the normalized versions might return a parameter along the line segment that represents the closest point.
+
+// Use Case: Imagine a projectile being fired towards a moving target. These functions can be used to determine the point on the target's projected path (line segment) that the projectile is most likely to collide with, even if the collision happens outside the actual line segment itself.
+func closest_point_on_line_v2(a: Vector2, b: Vector2, c: Vector2) -> Vector2
+func closest_point_on_line_v3(a: Vector3, b: Vector3, c: Vector3) -> Vector3
+func closest_point_on_line_normalized_v2(a: Vector2, b: Vector2, c: Vector2) -> float
+func closest_point_on_line_normalized_v3(a: Vector3, b: Vector3, c: Vector3) -> float
+```
+
+## Censorer 💢
+The `OmniKitCensorer` allows you to censor offensive content in your game texts. Useful to filter offensive words received from players.
+
+> [!NOTE]
+> **_Currently only supports English and Russian_**
+
+```swift
+// Returns a list of texts with the censor filter applied
+static func filter_list(texts: Array[String] = [], censor_character: String = "*") -> Array[String]
+
+// Return a text with the censor filter applied
+static func filter(text: String, censor_character: String = "*") -> String
+```
+
+## String helper 🔤
+The `OmniKitStringHelper` class provides helpful functions for manipulating strings and text in general.
+
+### Constants
+
+```swift
+const AsciiAlphanumeric: String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const AsciiLetters: String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const AsciiLowercase: String = "abcdefghijklmnopqrstuvwxyz"
+const AsciiUppercase: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const AsciiDigits: String = "0123456789"
+const AsciiHexdigits: String = "0123456789ABCDEF"
+const AsciiPunctuation: String =  "!\"#$%&'()*+, -./:;<=>?@[\\]^_`{|}~"
+const bar: String = "█"
+```
+
+### Methods
+
+```swift
+// Generates a random string of a specified length using the provided character set. Defaults to a length of 25 and includes lowercase, uppercase letters, and numbers.
+// To ensure a valid string, it requires a length greater than 1 and at least one valid character. Otherwise, it returns an empty string.
+func generate_random_string(length: int = 25, characters: String = AsciiAlphanumeric) -> String
+
+func camel_to_snake(camel_string: String) -> String
+
+func snake_to_camel_case(screaming_snake_case: String) -> String
+
+// Clean a string by removing characters that are not letters (uppercase or lowercase), numbers or spaces, tabs or newlines.
+func clean(string: String, include_numbers: bool = true) -> String
+
+// This function wraps the provided text into multiple lines if it exceeds the specified max_line_length
+func wrap_text(text: String = "", max_line_length: int = 120)
+
+func integer_to_ordinal(number: int) -> String
+integer_to_ordinal(1) // 1st
+integer_to_ordinal(2) // 2nd
+integer_to_ordinal(3) // 3rd
+integer_to_ordinal(4) // 4th
+//...
+
+static func pretty_number(
+	number: float, 
+	suffixes: Array[String] = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De"]
+) -> String
+
+// Return the Dictionary structure
+/** {
+		"sign",
+		"number",
+		"number_str",
+		"suffix",
+	}
+**/
+static func pretty_number_as_dict(
+	number: float, 
+	suffixes: Array[String] = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De"]
+) -> Dictionary
+
+func to_binary_string(num: int) -> String
+
+func strip_bbcode(source:String) -> String
+
+func strip_filepaths(source: String) -> String
+
+func str_replace(target: String, regex: RegEx, cb: Callable) -> String
+
+func equals_ignore_case(one: String, two: String) -> bool
+
+func is_whitespace(text: String) -> bool
+
+func remove_whitespaces(text: String) -> String
+
+func repeat(text: String, times: int) -> String
+
+static func replace_tokens(text: String, tokens: Array[String], replacement: String = "")  -> String
+
+static func remove_tokens(text: String, tokens: Array[String])  -> String
+
+// Returns the character "█" the amount passed as parameter
+func bars(amount: int, separator: String = "") -> String
+bars(3) // "███"
+bars(3, " ") // "█ █ █"
+
+// Pad zero on 1-digit numbers 0-9
+// Example: 5 becomes 05
+func pad_zero(number: int) -> String:
+	
+pad_zero(5) // "05"
+pad_zero(23) // "23"
+```
+
+## Time ⏳
+
+The `OmniKitTimeHelper` class provides useful methods to manipulate the time in-game.
+
+```swift
+class TimeHelper
+
+enum TimeUnit {
+	Seconds,
+	Milliseconds,
+	Microseconds
+}
+
+
+static var conversions_to_seconds: Dictionary = {
+	TimeUnit.Seconds: 1.0,
+	TimeUnit.Milliseconds: 1_000.0,
+	TimeUnit.Microseconds: 1_000_000.0,
+}
+
+
+"""
+Formats a time value into a string representation of minutes, seconds, and optionally milliseconds.
+
+Args:
+	time (float): The time value to format, in seconds.
+	use_milliseconds (bool, optional): Whether to include milliseconds in the formatted string. Defaults to false.
+
+Returns:
+	str: A string representation of the formatted time in the format "MM:SS" or "MM:SS:mm", depending on the value of use_milliseconds.
+
+Example:
+	# Format 123.456 seconds without milliseconds
+	var formatted_time = format_seconds(123.456)
+	# Result: "02:03"
+
+	# Format 123.456 seconds with milliseconds
+	var formatted_time_with_ms = format_seconds(123.456, true)
+	# Result: "02:03:45"
+"""
+func format_seconds(time: float, use_milliseconds: bool = false) -> String
+
+// Returns the amount of time passed since the engine started
+func get_ticks(time_unit: TimeUnit = TimeUnit.Seconds) -> float
+
+// Returns the conversion of [method Time.get_ticks_usec] to seconds.
+func get_ticks_seconds() -> float
+
+func convert_to_seconds(time: float, origin_unit: TimeUnit) -> float
+
+func convert_to(time: float, origin_unit: TimeUnit, target_unit: TimeUnit) -> float
+
+// Shorcuts to quickly create timers by code
+func create_idle_timer(wait_time: float = 1.0, autostart: bool = false, one_shot: bool = false) -> Timer
+
+func create_physics_timer(wait_time: float = 1.0, autostart: bool = false, one_shot: bool = false) -> Timer
+```
+
+## Raycast Result
+The `OmniKitRaycastResult` it's a more comfy way to handle the raycast result properties instead of a plain Dictionary.
+
+```swift
+var collider: Node
+var collider_id: int
+var normal: Vector3
+var position: Vector3
+var face_index: int
+var shape: int
+var rid: RID
+
+
+func _init(result: Dictionary) -> void
+
+func collided() -> bool
+
+// Calculate a projection Vector to the desired point from this raycast result
+func projection(origin: Vector3, to: Vector3 = position, distance: float = 100.0) -> Vector3
+
+// Get the properties as dictionary again
+func as_dict() -> Dictionary
+
+```
+## Camera2D 🎥
+
+The `OmniKitCamera2DHelper` provides useful methods to manipulate and obtain information from 2D cameras
+
+```swift
+static func get_camera2d_frame(viewport: Viewport, selected_camera: Camera2D = null) -> Rect2:
+
+//This function aims to calculate a new camera position based on mouse movement, effectively simulating a panning camera effect.
+static func get_panning_camera_position(camera: Camera2D) -> Vector2
+```
+
+## Camera3D 🎥
+
+The `OmniKitCamera3DHelper` provides useful methods to manipulate and obtain information from 3D cameras
+
+```swift
+static func center_by_ray_origin(camera: Camera3D) -> Vector3
+
+static func center_by_origin(camera: Camera3D) -> Vector3
+
+static func forward_direction(camera: Camera3D) -> Vector3
+
+static func is_facing_camera(camera: Camera3D, node: Node) -> bool
+
+static func camera_snap_to_grid(camera: Camera3D, target: Node3D, grid_size: float, ground_y_level: float = 0.0) -> Vector3
+
+static func world_to_screen_position(world_position: Vector3, camera: Camera3D) -> Vector2
+
+static func world_position_to_ui(ui_element: Control, world_position: Vector3, camera: Camera3D) -> void
+
+static func project_raycast(
+	viewport: Viewport,
+	from: Vector3,
+	to: Vector3,
+	collide_with_bodies: bool = true,
+	collide_with_areas: bool = false,
+	collision_mask: int = 1
+) -> OmniKitRaycastResult
+
+static func project_raycast_from_camera_center(
+	camera: Camera3D,
+	distance: float = 1000.0, 
+	collide_with_bodies: bool = true,
+	collide_with_areas: bool = false,
+	collision_mask: int = 1
+) -> OmniKitRaycastResult
+	
+static func project_raycast_to_mouse(
+	camera: Camera3D,
+	distance: float = 1000.0,
+	collide_with_bodies: bool = true,
+	collide_with_areas: bool = false,
+	collision_mask: int = 1
+) -> OmniKitRaycastResult
+```
+
+## Texture helper 🖼️
+The `OmniKitTextureHelper` provides useful methods to manipulate and obtain information from textures and sprites.
+
+
+```swift
+// Center the TextureRect based on the texture size
+func center_texture_rect_pivot(texture_rect: TextureRect) -> TextureRect:
+
+func get_texture_dimensions(texture: Texture2D) -> Rect2i
+
+func get_texture_rect_dimensions(texture_rect: TextureRect) -> Vector2
+
+func get_sprite_dimensions(sprite: Sprite2D) -> Vector2
+
+func get_png_rect_from_texture(texture: Texture2D) -> Rect2i
+
+func get_colors_from_image(image: Image) -> PackedColorArray
+
+func get_colors_from_texture(texture: Texture2D) -> PackedColorArray
+```
+
 ## Data structures 🛠️
 This classes help to handle known data structures and simplify many operations by abstracting their logic and exposing them as a single function
 
@@ -1962,210 +2440,4 @@ func reshuffle() -> void
 func pick_random() -> Variant
 
 func pick_randoms(amount: int) -> Variant
-```
-
-### Vector helper ➖
-The `OmniKitVectorHelper` class provides a collection of commonly used vector methods that can simplify your everyday game development tasks. While it offers a wide range of functions, in-depth documentation might not be available for every method. However, the method names themselves are designed to be clear and descriptive.
-
-#### Constants
-
-```swift
-const directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
-const horizontal_directions_v2: Array[Vector2] = [Vector2.LEFT, Vector2.RIGHT]
-const vertical_directions_v2: Array[Vector2] = [Vector2.UP, Vector2.DOWN]
-
-const directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2.RIGHT]
-const horizontal_directions_v2i: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT]
-const vertical_directions_v2i: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN]
-
-const directions_v3: Array[Vector3] = [
-	Vector3.UP,
-	Vector3.DOWN,
-	Vector3.FORWARD,
-	Vector3.BACK,
-	Vector3.LEFT,
-	Vector3.RIGHT
-]
-
-const directions_v3i: Array[Vector3] = [
-	Vector3i.UP,
-	Vector3i.DOWN,
-	Vector3i.FORWARD,
-	Vector3i.BACK,
-	Vector3i.LEFT,
-	Vector3i.RIGHT
-]
-
-const opposite_directions_v2: Dictionary = {
-	Vector2.UP: Vector2.DOWN,
-	Vector2.DOWN: Vector2.UP,
-	Vector2.RIGHT: Vector2.LEFT,
-	Vector2.LEFT: Vector2.RIGHT
-}
-
-
-const opposite_directions_v2i: Dictionary = {
-	Vector2i.UP: Vector2i.DOWN,
-	Vector2i.DOWN: Vector2i.UP,
-	Vector2i.RIGHT: Vector2i.LEFT,
-	Vector2i.LEFT: Vector2i.RIGHT
-}
-
-
-const opposite_directions_v3: Dictionary = {
-  	Vector3.UP: Vector3.DOWN,
-	Vector3.DOWN: Vector3.UP,
-	Vector3.RIGHT: Vector3.LEFT, 
-	Vector3.LEFT: Vector3.RIGHT, 
-	Vector3.FORWARD: Vector3.BACK, 
-	Vector3.BACK: Vector3.FORWARD
-}
-
-
-const opposite_directions_v3i: Dictionary = {
-  	Vector3i.UP: Vector3i.DOWN,
-	Vector3i.DOWN: Vector3i.UP,
-	Vector3i.RIGHT: Vector3i.LEFT, 
-	Vector3i.LEFT: Vector3i.RIGHT, 
-	Vector3i.FORWARD: Vector3i.BACK, 
-	Vector3i.BACK: Vector3i.FORWARD
-}
-```
-
-#### Methods
-
-```swift
-// The up_direction is the Vector pointing upwards, used to determine what is a wall and what is a floor (or a ceiling) when calling move_and_slide().
-// This is the common direction where we want to obtain the opposite to act as gravity but any normalized vector can be used
-static func up_direction_opposite_vector2(up_direction: Vector2) -> Vector2
-
-static func up_direction_opposite_vector2i(up_direction: Vector2i) -> Vector2i
-
-static func up_direction_opposite_vector3(up_direction: Vector3) -> Vector3
-
-static func up_direction_opposite_vector3i(up_direction: Vector3i) -> Vector3i
-
-// Converts Vectors like Vector3(1, 0, 0) into Vector3(0, 1, 1)
-static func invert_vector3(vector: Vector3) -> Vector3
-
-func generate_2d_random_directions_using_degrees(num_directions: int = 10, origin: Vector2 = Vector2.UP, min_angle: float = 0.0, max_angle: float = 360.0) -> Array[Vector2]
-
-func generate_2d_random_directions_using_radians(num_directions: int = 10, origin: Vector2 = Vector2.UP, min_angle: float = 0.0, max_angle: float = 6.2831853072) -> Array[Vector2]
-
-func generate_3d_random_directions_using_degrees(num_directions: int = 10, origin: Vector3 = Vector3.UP, min_angle: float = 0.0, max_angle: float = 360.0) -> Array[Vector3]
-
-func generate_3d_random_directions_using_radians(num_directions: int = 10, origin: Vector3 = Vector3.UP, min_angle: float = 0.0, max_angle: float = 6.2831853072) -> Array[Vector3]
-
-
-func generate_random_angle_in_radians(min_angle: float = 0.0, max_angle: float = 6.2831853072) -> float
-
-func generate_random_angle_in_degrees(min_angle: float = 0.0, max_angle: float = 360.0) -> float
-
-func generate_2d_random_fixed_direction() -> Vector2
-
-func generate_3d_random_fixed_direction() -> Vector3
-
-func generate_2d_random_direction() -> Vector2
-
-func generate_3d_random_direction() -> Vector3
-
-// Translate -1.0, 0 and 1.0 values from getting the input axis into a Vector2
-func translate_x_axis_to_vector(axis: float) -> Vector2
-
-func translate_y_axis_to_vector(axis: float) -> Vector2
-
-// Normalize the vector taking into account if it's diagonal
-func normalize_vector2(value: Vector2) -> Vector2
-
-func normalize_diagonal_vector2(direction: Vector2) -> Vector2
-
-func normalize_vector3(value: Vector3) -> Vector3
-
-func normalize_diagonal_vector3(direction: Vector3) -> Vector3
-
-func is_diagonal_direction_v2(direction: Vector2) -> bool
-
-func is_diagonal_direction_v3(direction: Vector3) -> bool
-
-// -------------
-// Explanation: These functions perform a distance check between two vectors but use a squared distance comparison instead of calculating the actual distance. They determine if the squared distance between the vector and second_vector is less than or equal to the square of the provided distance.
-
-// Reason for Squared Distance: Calculating the squared distance is computationally cheaper than calculating the actual distance using a square root operation. This can be beneficial for performance optimization when checking distances frequently.
-
-// Use Case: Imagine having a large number of enemies in a game and needing to check if they are within a certain attack range of the player. Using is_withing_distance_squared can be more efficient than calculating the actual distance for each enemy, especially if the result (being within range) is only used for a binary decision (attack or not).
-
-// ----- Important Note -----
-// While using squared distances offers a performance benefit, keep in mind that it doesn't give you the actual distance between the points. If you need the actual distance for calculations or other purposes, you'll need to perform a square root operation on the result of is_withing_distance_squared
-func is_withing_distance_squared_v2(vector: Vector2, second_vector: Vector2, distance: float) -> bool
-
-func is_withing_distance_squared_v3(vector: Vector3, second_vector: Vector3, distance: float) -> bool
-
-// Transforms a rotation angle in radians into a Vector in space
-func direction_from_rotation_v2(rotation: float) -> Vector2
-
-func direction_from_rotation_v3(rotation: float) -> Vector3
-
-func direction_from_rotation_degrees_v2(rotation_degrees: float) -> Vector2
-
-func direction_from_rotation_degrees_v3(rotation_degrees: float) -> Vector3
-
-// Use Case: Imagine creating a dynamic light source that simulates a flickering torch or a spotlight with a slight wobble. You can leverage the rotate_horizontal_random and rotate_vertical_random functions to achieve this effect.
-
-// Rotate the vector in a random horizontal direction [Vector2.RIGHT, Vector2.LEFT]
-func rotate_horizontal_random(origin: Vector3 = Vector3.ONE) -> Vector3
-
-// Rotate the vector in a random vertical direction  [Vector2.UP, Vector2.DOWN]
-func rotate_vertical_random(origin: Vector3 = Vector3.ONE) -> Vector3
-
-
-func vec3_from_color_rgb(color: Color) -> Vector3
-
-func vec3_from_color_hsv(color: Color) -> Vector3
-
-
-func get_position_by_polar_coordinates_v2(center_position: Vector2, angle_radians: float, radius: float) -> Vector2
-
-func get_position_by_polar_coordinates_v3(center_position: Vector3, angle_radians: float, radius: float) -> Vector3
-
-
-// -------------
-//Also known as the "city distance" or "L1 distance". It measures the distance between two points as the sum of the absolute differences of their coordinates in each dimension.
-
-// Explanation: These functions calculate the Manhattan distance (also known as L1 distance or city block distance) between two points. It represents the total distance traveled by moving horizontally and vertically along a grid, ignoring any diagonal movement.
-
-// Use Case: Imagine a pathfinding algorithm on a grid-based map. Manhattan distance can be used to estimate the distance between two points on the grid, as **movement is restricted to horizontal and vertical steps.
-func distance_manhattan_v2(a: Vector2, b: Vector2) -> float
-func distance_manhattan_v3(a: Vector3, b: Vector3) -> float
-func length_manhattan_v2(a : Vector2) -> float
-func length_manhattan_v3(a : Vector3) -> float
-
-// -------------
-// Also known as the "chess distance" or "L∞ distance". It measures the distance between two points as the greater of the absolute differences of their coordinates in each dimension.
-
-// Explanation: These functions calculate the Chebyshev distance *(also known as L∞ distance or chessboard distance)* between two points. It represents the maximum absolute difference of the coordinates between the points, similar to a king's movement in chess (only horizontal, vertical, or diagonal steps of one square).
-
-// Use Case: Imagine a tower defense game where enemies can only move horizontally or vertically along pre-defined paths. Chebyshev distance can be used to determine the enemy's "attack range" based on the maximum distance they can travel in a single move.
-func distance_chebyshev_v2(a: Vector2, b: Vector2) -> float
-func distance_chebyshev_v3(a: Vector3, b: Vector3) -> float
-func length_chebyshev_v2(a : Vector2) -> float
-func length_chebyshev_v3(a : Vector3) -> float
-
-// -------------
-// Explanation: These functions calculate the closest point on a line segment (defined by points a and b) to a third point c. Additionally, they clamp the result to ensure the closest point lies within the line segment (between a and b).
-
-// Use Case: Imagine a character trying to navigate around an obstacle. This function can be used to find the closest point on the obstacle's edge (line segment) that the character can reach from their current position (c).
-func closest_point_on_line_clamped_v2(a: Vector2, b: Vector2, c: Vector2) -> Vector2
-func closest_point_on_line_clamped_v3(a: Vector3, b: Vector3, c: Vector3) -> Vector3
-
-
-// -------------
-// This function is similar to the previous one but does not clamp the result. It calculates the closest point on the line segment defined by a and b to a third point c. It uses the same vector operations as the previous closest_point_on_line_clamped_v2 function.
-
-// Explanation: These functions are similar to the clamped versions, but they calculate the closest point on the line segment without clamping. The non-normalized versions return the actual vector representing the closest point, while the normalized versions might return a parameter along the line segment that represents the closest point.
-
-// Use Case: Imagine a projectile being fired towards a moving target. These functions can be used to determine the point on the target's projected path (line segment) that the projectile is most likely to collide with, even if the collision happens outside the actual line segment itself.
-func closest_point_on_line_v2(a: Vector2, b: Vector2, c: Vector2) -> Vector2
-func closest_point_on_line_v3(a: Vector3, b: Vector3, c: Vector3) -> Vector3
-func closest_point_on_line_normalized_v2(a: Vector2, b: Vector2, c: Vector2) -> float
-func closest_point_on_line_normalized_v3(a: Vector3, b: Vector3, c: Vector3) -> float
 ```
