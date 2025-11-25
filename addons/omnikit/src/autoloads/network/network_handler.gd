@@ -46,8 +46,10 @@ func _exit_tree() -> void:
 	end()
 
 
-func ping(urls: Array[String] = DefaultPingURLs) -> bool:
+func ping(urls: Array[String] = DefaultPingURLs, request_timeout: int = 5) -> bool:
 	var http_request: HTTPRequest = HTTPRequest.new()
+	http_request.timeout = request_timeout
+
 	## Used Array as GDScript pass them as reference on parameters, so it can be mutated inside the closure
 	var internet_connection: Array[bool] = [false] 
 	
@@ -108,6 +110,7 @@ func start_broadcast(broadcast_port: int = DefaultBroadcastPort, dest_port: int 
 	_create_broadcast_timer()
 		
 	broadcaster = PacketPeerUDP.new()
+	
 	broadcaster.set_broadcast_enabled(true)
 	broadcaster.set_dest_address(current_broadcast_address, dest_port)
 	var binded_port_error: Error =  broadcaster.bind(broadcast_port, bind_address)
@@ -176,21 +179,23 @@ func _create_broadcast_timer() -> void:
 
 func validate_ipv4(ip: String) -> bool:
 	var ipv4_regex: RegEx = RegEx.new()
+	var valid: Error = ipv4_regex.compile(r"^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$")
 	
-	return ipv4_regex.compile(r"^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$")
+	return valid == OK
 
 
 func validate_ipv6(ip: String) -> bool:
 	var ipv6_regex: RegEx = RegEx.new()
+	var valid: Error = ipv6_regex.compile(r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
 	
-	return ipv6_regex.compile(r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
+	return valid == OK
 	
 	
 func port_in_valid_range(port: int) -> bool:
 	return OmniKitMathHelper.value_is_between(port, 1, pow(2, 16) - 1) ## 65536 - 1
 
 
-func random_port() -> bool:
+func random_port() -> int:
 	return randi_range(1, 65535)
 
 
