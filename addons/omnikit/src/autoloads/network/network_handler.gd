@@ -73,18 +73,30 @@ func ping(urls: Array[String] = DefaultPingURLs) -> bool:
 
 func start_server(port: int =  DefaultServerPort, max_players: int = 32) -> void:
 	peer = ENetMultiplayerPeer.new()
-	peer.create_server(port, max_players)
-	multiplayer.multiplayer_peer = peer
+	var server_error: Error = peer.create_server(port, max_players)
 	
+	if server_error != OK:
+		var error: String = "OmniKitNetworkHandler->start_server: An error [%d | %s] happened creating the server, aborting..." % [server_error, error_string(server_error)]
+		push_error(error)
+		OmnikitLogger.error(error)
+		return
+		
+	multiplayer.multiplayer_peer = peer
 	multiplayer.peer_connected.connect(on_client_connected)
 	multiplayer.peer_disconnected.connect(on_client_disconnected)
 
 
 func start_client(ip: String = LocalHost, port: int = DefaultServerPort) -> void:
 	peer = ENetMultiplayerPeer.new()
-	peer.create_client(ip, port)
-	multiplayer.multiplayer_peer = peer
+	var client_error: Error = peer.create_client(ip, port)
 	
+	if client_error != OK:
+		var error: String = "OmniKitNetworkHandler->start_client: An error [%d | %s] happened creating the server, aborting..." % [client_error, error_string(client_error)]
+		push_error(error)
+		OmnikitLogger.error(error)
+		return
+	
+	multiplayer.multiplayer_peer = peer
 	multiplayer.peer_connected.connect(on_client_connected)
 	multiplayer.peer_disconnected.connect(on_client_disconnected)
 	multiplayer.connected_to_server.connect(on_connected_to_server)
@@ -101,9 +113,9 @@ func start_broadcast(broadcast_port: int = DefaultBroadcastPort, dest_port: int 
 	var binded_port_error: Error =  broadcaster.bind(broadcast_port, bind_address)
 	
 	if binded_port_error == OK:
-		print("OmniKitLocalNetworkHandler: Broadcast port %d binded with success " % broadcast_port)
+		print("OmniKitNetworkHandler: Broadcast port %d binded with success " % broadcast_port)
 	else:
-		push_error("OmniKitLocalNetworkHandler: An error %s happened when binding port on broadcast %d" % [error_string(binded_port_error), broadcast_port])
+		push_error("OmniKitNetworkHandler: An error %s happened when binding port on broadcast %d" % [error_string(binded_port_error), broadcast_port])
 		
 	broadcast_timer.start(broadcast_emission_interval)
 
@@ -116,13 +128,13 @@ func start_broadcast_listener(listen_port: int = DefaultBroadcastListenPort, bin
 		broadcast_listener.close()
 	else:
 		broadcast_listener = PacketPeerUDP.new()
-		
+	
 	var binded_port_error: Error =  broadcast_listener.bind(listen_port, bind_address)
 	
 	if binded_port_error == OK:
-		print("OmniKitLocalNetworkHandler: Listener broadcast port %d binded with success " % listen_port)
+		print("OmniKitNetworkHandler: Listener broadcast port %d binded with success " % listen_port)
 	else:
-		push_error("OmniKitLocalNetworkHandler: An error %s happened when binding port on broadcast listener %d" % [error_string(binded_port_error), listen_port])
+		push_error("OmniKitNetworkHandler: An error %s happened when binding port on broadcast listener %d" % [error_string(binded_port_error), listen_port])
 		
 	return broadcast_listener
 
@@ -154,7 +166,7 @@ func end_broadcast_listener() -> void:
 func _create_broadcast_timer() -> void:
 	if not is_instance_valid(broadcast_timer):
 		broadcast_timer = Timer.new()
-		broadcast_timer.name = "OmniKitLocalNetworkHandlerBroadcastTimer"
+		broadcast_timer.name = "OmniKitNetworkHandlerBroadcastTimer"
 		broadcast_timer.process_callback = Timer.TIMER_PROCESS_IDLE
 		broadcast_timer.autostart = false
 		broadcast_timer.one_shot = false
