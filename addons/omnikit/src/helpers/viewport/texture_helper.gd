@@ -1,5 +1,62 @@
 class_name OmniKitTextureHelper
 
+static var ImageFormatSignatures: Dictionary[String, Array] = {
+	"png": [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
+	"jpg": [0xFF, 0xD8, 0xFF],
+	"jpeg": [0xFF, 0xD8, 0xFF],
+	"webp": [0x52, 0x49, 0x46, 0x46, null, null, null, null, 0x57, 0x45, 0x42, 0x50], ## Ignore byte size with null
+	"bmp": [0x42, 0x4D],
+	"tga": [0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+	"svg": [0x3C, 0x73, 0x76, 0x67], ## <svg bytes
+	"svg_xml": [0x3C, 0x3F, 0x78, 0x6D, 0x6C], ## <?xml bytes
+}
+
+static func detect_image_format_from_bytes(data: PackedByteArray) -> String:
+	if data.size() < 12:
+		return ""
+	
+	for format: String in ImageFormatSignatures:
+		var signature = ImageFormatSignatures[format]
+		var is_match = true
+		
+		for index: int in signature.size():
+			if signature[index] == null:  
+				continue
+				
+			if index >= data.size() or data[index] != signature[index]:
+				is_match = false
+				break
+		
+		if is_match:
+			
+			if format.begins_with("svg"):
+				return "svg"
+				
+			return format
+	
+	return ""
+	
+	
+static func load_image_from_buffer(data: PackedByteArray) -> Image:
+	var image: Image = Image.new()
+	var format: String = detect_image_format_from_bytes(data)
+	
+	match format:
+		"png":
+			image.load_png_from_buffer(data)
+		"jpg", "jpeg":
+			image.load_jpg_from_buffer(data)
+		"bmp":
+			image.load_bmp_from_buffer(data)
+		"webp":
+			image.load_webp_from_buffer(data)
+		"tga":
+			image.load_tga_from_buffer(data)
+		"svg":
+			image.load_svg_from_buffer(data)
+	
+	return image
+
 
 static func center_texture_rect_pivot(texture_rect: TextureRect) -> TextureRect:
 	if texture_rect.texture:

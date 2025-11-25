@@ -2342,20 +2342,28 @@ The `OmniKitTextureHelper` provides useful methods to manipulate and obtain info
 
 
 ```swift
+
+// Returns the image format from a buffer, this method is used internally by load_image_from_buffer
+// Supported [png, jpg, jpeg, tga, webp, svg, bmp]
+static func detect_image_format_from_bytes(data: PackedByteArray) -> String
+
+// Load image data from buffer and transform it into a Godot Image object.
+static func load_image_from_buffer(data: PackedByteArray) -> Image
+
 // Center the TextureRect based on the texture size
-func center_texture_rect_pivot(texture_rect: TextureRect) -> TextureRect:
+static func center_texture_rect_pivot(texture_rect: TextureRect) -> TextureRect:
 
-func get_texture_dimensions(texture: Texture2D) -> Rect2i
+static func get_texture_dimensions(texture: Texture2D) -> Rect2i
 
-func get_texture_rect_dimensions(texture_rect: TextureRect) -> Vector2
+static func get_texture_rect_dimensions(texture_rect: TextureRect) -> Vector2
 
-func get_sprite_dimensions(sprite: Sprite2D) -> Vector2
+static func get_sprite_dimensions(sprite: Sprite2D) -> Vector2
 
-func get_png_rect_from_texture(texture: Texture2D) -> Rect2i
+static func get_png_rect_from_texture(texture: Texture2D) -> Rect2i
 
-func get_colors_from_image(image: Image) -> PackedColorArray
+static func get_colors_from_image(image: Image) -> PackedColorArray
 
-func get_colors_from_texture(texture: Texture2D) -> PackedColorArray
+static func get_colors_from_texture(texture: Texture2D) -> PackedColorArray
 ```
 
 ## Data structures 🛠️
