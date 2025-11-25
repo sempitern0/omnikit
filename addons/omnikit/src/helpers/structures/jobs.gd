@@ -1,5 +1,6 @@
 ## Wait for multiple callables to finish
 ## EXAMPLE:
+## var jobs = OmniKitJobs.new()
 ## jobs.add(func(): ## do stuff):
 ## jobs.add(func(): ## do secondary stuff):
 ## await jobs.completed

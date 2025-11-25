@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://dqd6fc5qtim7d"]
+
+[ext_resource type="Script" uid="uid://c22a1w56amswj" path="res://event_bus.gd" id="1_dw24f"]
+[ext_resource type="Script" uid="uid://c7d81wivf54vc" path="res://score.gd" id="2_ql4vm"]
+
+[node name="EventBus" type="Node2D"]
+script = ExtResource("1_dw24f")
+
+[node name="ScoreHandler" type="Node" parent="."]
+script = ExtResource("2_ql4vm")
+metadata/_custom_type_script = "uid://c7d81wivf54vc"

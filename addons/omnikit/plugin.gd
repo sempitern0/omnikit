@@ -9,20 +9,21 @@ func _enter_tree() -> void:
 	add_autoload_singleton("OmniKitWindowManager", "src/autoloads/viewport/window_manager.gd")
 	add_autoload_singleton("OmniKitNetworkHandler", "src/autoloads/network/network_handler.gd")
 	add_autoload_singleton("OmniKitGamepadControllerManager", "src/autoloads/gamepad/gamepad_controller_manager.gd")
+	add_autoload_singleton("OmniKitEventBus", "src/autoloads/signals/event_bus.gd")
 	
 	
-	OmniKitToolboxSettings.setup_preloader_output_path()
-	OmniKitToolboxSettings.setup_preloader_classname()
-	OmniKitToolboxSettings.setup_enable_timer(false)
-	OmniKitToolboxSettings.setup_preloader_update_frequency()
-	OmniKitToolboxSettings.setup_include_scripts()
-	OmniKitToolboxSettings.setup_include_scenes()
-	OmniKitToolboxSettings.setup_include_resources()
-	OmniKitToolboxSettings.setup_include_shaders()
-	OmniKitToolboxSettings.setup_exclude_paths()
-	OmniKitToolboxSettings.setup_supported_image_types()
-	OmniKitToolboxSettings.setup_supported_audio_types()
-	OmniKitToolboxSettings.setup_supported_font_types()
+	OmniKitSettings.setup_preloader_output_path()
+	OmniKitSettings.setup_preloader_classname()
+	OmniKitSettings.setup_enable_timer(false)
+	OmniKitSettings.setup_preloader_update_frequency()
+	OmniKitSettings.setup_include_scripts()
+	OmniKitSettings.setup_include_scenes()
+	OmniKitSettings.setup_include_resources()
+	OmniKitSettings.setup_include_shaders()
+	OmniKitSettings.setup_exclude_paths()
+	OmniKitSettings.setup_supported_image_types()
+	OmniKitSettings.setup_supported_audio_types()
+	OmniKitSettings.setup_supported_font_types()
 	
 	if OS.is_debug_build():
 		if mutex == null:
@@ -31,7 +32,7 @@ func _enter_tree() -> void:
 		if preloader_timer == null:
 			preloader_timer = Timer.new()
 			preloader_timer.name = "PreloaderTimer"
-			preloader_timer.wait_time = ProjectSettings.get_setting(OmniKitToolboxSettings.PreloaderUpdateFrequencySetting)
+			preloader_timer.wait_time = ProjectSettings.get_setting(OmniKitSettings.PreloaderUpdateFrequencySetting)
 			preloader_timer.one_shot = false
 			preloader_timer.autostart = true
 			add_child(preloader_timer)
@@ -56,6 +57,7 @@ func _exit_tree() -> void:
 		
 	preloader_timer = null
 	
+	remove_autoload_singleton("OmniKitEventBus")
 	remove_autoload_singleton("OmniKitGamepadControllerManager")
 	remove_autoload_singleton("OmniKitWindowManager")
 	remove_autoload_singleton("OmniKitNetworkHandler")
@@ -67,21 +69,21 @@ func generate_preloader_file() -> void:
 		var ignored_files_regex: RegEx = RegEx.new()
 		ignored_files_regex.compile(r"^res://(\..+|.*\.(uid|md|cfg|import|godot))$")
 		
-		var excluded_paths: Array[String] = ProjectSettings.get_setting(OmniKitToolboxSettings.ExcludePathSetting)
+		var excluded_paths: Array[String] = ProjectSettings.get_setting(OmniKitSettings.ExcludePathSetting)
 		
 		if excluded_paths == null:
 			excluded_paths = ["addons"]
 			
-		var image_extensions: Array[String] = ProjectSettings.get_setting(OmniKitToolboxSettings.ImageTypesSetting)
-		var audio_extensions: Array[String] = ProjectSettings.get_setting(OmniKitToolboxSettings.AudioTypesSetting)
-		var font_extensions: Array[String] = ProjectSettings.get_setting(OmniKitToolboxSettings.FontTypesSetting)
-		var include_scripts: bool = ProjectSettings.get_setting(OmniKitToolboxSettings.IncludeScriptsSetting)
-		var include_scenes: bool = ProjectSettings.get_setting(OmniKitToolboxSettings.IncludeScenesSetting)
-		var include_resources: bool = ProjectSettings.get_setting(OmniKitToolboxSettings.IncludeResourcesSetting)
-		var include_shaders: bool = ProjectSettings.get_setting(OmniKitToolboxSettings.IncludeShadersSetting)
+		var image_extensions: Array[String] = ProjectSettings.get_setting(OmniKitSettings.ImageTypesSetting)
+		var audio_extensions: Array[String] = ProjectSettings.get_setting(OmniKitSettings.AudioTypesSetting)
+		var font_extensions: Array[String] = ProjectSettings.get_setting(OmniKitSettings.FontTypesSetting)
+		var include_scripts: bool = ProjectSettings.get_setting(OmniKitSettings.IncludeScriptsSetting)
+		var include_scenes: bool = ProjectSettings.get_setting(OmniKitSettings.IncludeScenesSetting)
+		var include_resources: bool = ProjectSettings.get_setting(OmniKitSettings.IncludeResourcesSetting)
+		var include_shaders: bool = ProjectSettings.get_setting(OmniKitSettings.IncludeShadersSetting)
 	
-		var output_path: String = ProjectSettings.get_setting(OmniKitToolboxSettings.OutputPreloaderPathSetting)
-		var preloader_classname: String = ProjectSettings.get_setting(OmniKitToolboxSettings.PreloaderClassNameSetting)
+		var output_path: String = ProjectSettings.get_setting(OmniKitSettings.OutputPreloaderPathSetting)
+		var preloader_classname: String = ProjectSettings.get_setting(OmniKitSettings.PreloaderClassNameSetting)
 		
 		DirAccess.make_dir_recursive_absolute(output_path)
 		
@@ -208,9 +210,9 @@ func scan_filesystem() -> void:
 
 func on_project_settings_changed() -> void:
 	if preloader_timer:
-		if ProjectSettings.get_setting(OmniKitToolboxSettings.EnableTimerSetting):
+		if ProjectSettings.get_setting(OmniKitSettings.EnableTimerSetting):
 			preloader_timer.stop()
-			preloader_timer.wait_time = ProjectSettings.get_setting(OmniKitToolboxSettings.PreloaderUpdateFrequencySetting)
+			preloader_timer.wait_time = ProjectSettings.get_setting(OmniKitSettings.PreloaderUpdateFrequencySetting)
 			preloader_timer.start()
 		else:
 			preloader_timer.stop()

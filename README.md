@@ -45,6 +45,11 @@
 			- [Set the broadcast emission data](#set-the-broadcast-emission-data)
 			- [End broadcast](#end-broadcast)
 - [OmniKitLogger](#omnikitlogger)
+	- [Event Bus 🚌](#event-bus-)
+		- [Subscribe to events](#subscribe-to-events)
+		- [Unsubscribe](#unsubscribe)
+		- [Publish an event](#publish-an-event)
+		- [Event history](#event-history)
 - [Helpers ✨](#helpers-)
 	- [CollisionHelper 💥](#collisionhelper-)
 	- [ColorHelper 🎨](#colorhelper-)
@@ -412,6 +417,9 @@ Even if you don't use it for network management in your project, there are usefu
 
 
 ```swift
+// Hostnames are only usable when on LAN, they are not reachable on the internet.
+func hostname() -> String:
+
 func validate_ipv4(ip: String) -> bool
 
 func validate_ipv6(ip: String) -> bool
@@ -529,6 +537,98 @@ OmniKitLogger.error(message: String)
 // Logging failures that may lead to instability or immediate crashes. Includes a script backtrace.
 OmniKitLogger.critical(message: String)
 ```
+
+## Event Bus 🚌 
+The `OmniKitEventBus` does not replace Godot's built-in signal system. Instead, it provides a simple way to connect events on scripts that don't need to be part of the `SceneTree`.
+
+It's highly recommended to create a separate script, such as `Events.gd`, to store your event names as constants. This approach ensures that you only have to change event names in a single location, which improves maintainability.
+
+```swift
+class_name Events
+
+cconst Scored: StringName = &"scored"
+const GameOver: StringName = &"game_over"
+
+//...
+
+// Before: 
+OmniKitEventBus.subscribe(&"scored", ...args) 
+// After (Improved)
+OmniKitEventBus.subscribe(Events.Scored, ...args)
+```
+
+### Subscribe to events
+You can bind a Callable directly to a specific event. Events are created within the OmniKitEventBus if they don't already exist. The system prevents duplicate subscriptions (binding the same Callable to the same event), so accidentally calling subscribe() twice will have no side effects.
+
+The subscribe function accepts the following parameters:
+
+- **Event:** The unique name of the event.
+- **Method:** The method you want to execute when the event is published.
+- **Priority:** Determines the order of execution. Higher numbers are called first. (Default is 0).
+- **Flag:** The same connection flags used for Godot's built-in signals.
+
+```swift
+// AVAILABLE CONNECT SIGNAL FLAGS
+// ● CONNECT_DEFERRED = 1
+// ● CONNECT_PERSIST = 2
+// ● CONNECT_ONE_SHOT = 4
+
+func subscribe(event: StringName, method: Callable, priority: int = 0, flag: ConnectFlags = CONNECT_PERSIST) -> void:
+
+// There is a shortcut to subscribe a Callable only once for the selected event.
+func subscribe_once(event: StringName, method: Callable, priority: int = 0) -> void:
+```
+
+### Unsubscribe
+This method is similar to Godot's disconnect, but it unbinds the specified `Callable` from a particular event. This operation is automatically performed when using the `CONNECT_ONE_SHOT` flag.
+
+It is a safe method: if the event does not exist or the `Callable` is not currently assigned to it, the function simply does nothing.
+
+```swift
+OmniKitEventBus.unsubscribe(Events.Scored, your_method)
+```
+
+### Publish an event
+To publish an event is to propagate it, causing all assigned `Callable` methods to be executed in `priority` order with the provided payload.
+
+```swift
+func publish(event: StringName, ...payload) -> void:
+
+//....
+
+OmniKitEventBus.publish(Events.Scored, 100)
+```
+
+### Event history
+Events are optionally recorded when they are published, which can be useful for debugging or game flow requirements. The recorded information is stored using the `EventRecord` class.
+
+```csharp
+// This are internal classes within OmniKitEventBus
+
+class EventListener:
+	var id: int
+	var method: Callable
+	var priority: int = 0
+	var flag: ConnectFlags = ConnectFlags.CONNECT_PERSIST
+	 
+
+class EventRecord:
+	var event: StringName
+	var listener: EventListener
+	var timestamp: float
+	var datetime: String
+
+//...
+
+var event_history: Array[EventRecord] = []
+var max_event_history_length: int = 50 // Set to 0 if you don't want to use the history
+
+
+// You available a function to flush the event history manually
+OmniKitEventBus.flush_event_history()
+```
+
+
 
 # Helpers ✨
 The helpers are static classes with a multitude of methods to help simplify the work. They are globally available and they don't need to be loaded in the scene tree.

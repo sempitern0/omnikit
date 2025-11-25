@@ -1,10 +1,10 @@
 @tool
-class_name OmniKitToolboxSettings extends RefCounted
+class_name OmniKitSettings extends RefCounted
 
 const PluginPrefixName: String = "omnikit" ## The folder name
 const GitRepositoryName: String = "omnikit"
 
-static var PluginName: String = "OmniKitToolbox"
+static var PluginName: String = "OmniKit"
 static var PluginProjectName: String = ProjectSettings.get_setting("application/config/name")
 static var PluginBasePath: String = "res://addons/%s" % PluginPrefixName
 static var PluginLocalConfigFilePath = "%s/plugin.cfg" % PluginBasePath
