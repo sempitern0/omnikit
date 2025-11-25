@@ -46,7 +46,7 @@ func equals(other: OmniKitHashSet) -> bool:
 	var result: bool = true
 	
 	for value: Variant in hashset.keys():
-		if not hashset.has(value):
+		if not other.has(value):
 			result = false
 			break
 	
