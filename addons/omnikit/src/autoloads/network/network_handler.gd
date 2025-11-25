@@ -209,7 +209,29 @@ func get_local_ips() -> Array[String]:
 	
 	return valid_addreses
 	
+## Hostnames are only usable when on LAN, they are not reachable on the internet.
+func hostname() -> String:
+	if OmniKitHardwareDetector.is_android():
+		var output: Array = []
+		OS.execute("getprop" , ["net.hostname"], output, false)
+		
+		if output.is_empty():
+			return ""
+		
+		return var_to_str(output)
+	
+	var environment_vars: Array[String] = ["HOSTNAME", "COMPUTERNAME", "USERNAME", "USER"]
+	
+	for env_var: String in environment_vars:
+		var env_hostname: String = OS.get_environment(env_var)
+		
+		if not env_hostname.is_empty():
+			return env_hostname
 
+	## Not the configured hostname by the user but allows you to at least identify the device
+	return OS.get_model_name()
+		
+		
 func get_local_ip(ip_type: IP.Type = IP.Type.TYPE_IPV4) -> String:
 	var local_ips: Array[String] = get_local_ips()
 	
