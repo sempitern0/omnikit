@@ -88,7 +88,7 @@ func start_server(port: int =  DefaultServerPort, max_players: int = 32) -> void
 	multiplayer.peer_disconnected.connect(on_client_disconnected)
 
 
-func start_client(ip: String = LocalHost, port: int = DefaultServerPort) -> void:
+func start_client(ip: String = LocalHost, port: int = DefaultServerPort, compression_mode: ENetConnection.CompressionMode = ENetConnection.COMPRESS_RANGE_CODER) -> void:
 	peer = ENetMultiplayerPeer.new()
 	var client_error: Error = peer.create_client(ip, port)
 	
@@ -97,6 +97,8 @@ func start_client(ip: String = LocalHost, port: int = DefaultServerPort) -> void
 		push_error(error)
 		OmnikitLogger.error(error)
 		return
+	
+	peer.get_host().compress(compression_mode)
 	
 	multiplayer.multiplayer_peer = peer
 	multiplayer.peer_connected.connect(on_client_connected)

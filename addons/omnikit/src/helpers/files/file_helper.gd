@@ -174,3 +174,19 @@ static func uid_to_file(uid: String) -> String:
 			return ResourceUID.get_id_path(id)
 
 	return ""
+	
+	
+static func desktop_dir() -> String:
+	return OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP)
+
+
+static func documents_dir() -> String:
+	return OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+
+
+static func pictures_dir() -> String:
+	return OS.get_system_dir(OS.SYSTEM_DIR_PICTURES)
+
+
+static func downloads_dir() -> String:
+	return OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS)

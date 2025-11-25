@@ -469,9 +469,22 @@ This set of methods manages the setup and teardown of the Godot MultiplayerAPI u
 // It automatically connects the server's lifecycle signals to the exposed OmniKitLocalNetworkHandler.
 func start_server(port: int = DefaultServerPort, max_players: int = 32) -> void
 
+/**
+● COMPRESS_NONE = 0
+	No compression. This uses the most bandwidth, but has the upside of requiring the fewest CPU resources. This option may also be used to make network debugging using tools like Wireshark easier.
+● COMPRESS_RANGE_CODER = 1 [SELECTED BY DEFAULT]
+	ENet's built-in range encoding. Works well on small packets, but is not the most efficient algorithm on packets larger than 4 KB.
+● COMPRESS_FASTLZ = 2
+	FastLZ   compression. This option uses less CPU resources compared to COMPRESS_ZLIB, at the expense of using more bandwidth.
+● COMPRESS_ZLIB = 3
+	Zlib compression. This option uses less bandwidth compared to COMPRESS_FASTLZ, at the expense of using more CPU resources.
+● COMPRESS_ZSTD = 4
+	Zstandard   compression. Note that this algorithm is not very efficient on packets smaller than 4 KB. Therefore, it's recommended to use other compression algorithms in most cases.
+**/
+
 // Initializes the ENetMultiplayerPeer as a client and attempts to connect to the specified IP address and port.
-// It connects all relevant client lifecycle signals exposed OmniKitLocalNetworkHandler.
-func start_client(ip: String = LocalHost, port: int = DefaultServerPort) -> void
+// It connects all relevant client lifecycle signals exposed from OmniKitLocalNetworkHandler.
+func start_client(ip: String = LocalHost, port: int = DefaultServerPort, compression_mode: ENetConnection.CompressionMode = ENetConnection.COMPRESS_RANGE_CODER) -> void
 
 // Cleans up all networking components: stops broadcasting, closes the broadcast listener, and sets multiplayer.multiplayer_peer = null, effectively closing the active connection or server.
 func end() -> void:
@@ -802,6 +815,14 @@ static func get_shader_files(path: String) -> Array
 
 // Given the UID, return the path to the linked file
 static func uid_to_file(uid: String) -> String
+
+static func desktop_dir() -> String
+
+static func documents_dir() -> String
+
+static func pictures_dir() -> String
+
+static func downloads_dir() -> String
 ```
 
 ### CSV Reader
