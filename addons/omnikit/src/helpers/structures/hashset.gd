@@ -1,49 +1,51 @@
 class_name OmniKitHashSet extends RefCounted
 
-var values: Array[Variant] = []
-
+var hashset: Dictionary[Variant, bool] = {}
 
 func _init(init_values: Array[Variant] = []) -> void:
 	merge(init_values)
 
 
 func merge(new_values: Array[Variant] = []) -> void:
-	for value in new_values:
+	for value: Variant in new_values:
 		add(value)
 
 	
-func add(value: Variant) -> void:
-	if not has(value):
-		values.append(value)
+func add(value: Variant) -> bool:
+	if hashset.has(value):
+		return false
+		
+	hashset[value] = true
+	return true
 	
-	
+
 func duplicate() -> OmniKitHashSet:
-	return OmniKitHashSet.new(values.duplicate())
+	return OmniKitHashSet.new(hashset.duplicate().keys())
 
 
-func remove(value: Variant) -> void:
-	values.erase(value)
+func remove(value: Variant) -> bool:
+	return hashset.erase(value)
 		
 
 func has(value: Variant) -> bool:
-	return values.has(value)
+	return hashset.has(value)
 
 
 func size() -> int:
-	return values.size()
+	return hashset.size()
 
 
 func is_empty() -> bool:
-	return values.is_empty()
+	return hashset.is_empty()
 
 
-func equals(hashset: OmniKitHashSet) -> bool:
-	if values.size() != hashset.size():
+func equals(other: OmniKitHashSet) -> bool:
+	if hashset.size() != other.size():
 		return false
 	
 	var result: bool = true
 	
-	for value in values:
+	for value: Variant in hashset.keys():
 		if not hashset.has(value):
 			result = false
 			break
@@ -51,27 +53,37 @@ func equals(hashset: OmniKitHashSet) -> bool:
 	return result
 
 
+func to_array() -> Array[Variant]:
+	return hashset.keys()
+
+
 func front() -> Variant:
-	if values.is_empty():
+	if hashset.is_empty():
 		return null
 		
-	return values.front()
+	return hashset.keys().front()
 
 
 func back() -> Variant:
-	if values.is_empty():
+	if hashset.is_empty():
 		return null
 		
-	return values.back()
+	return hashset.keys().back()
 	
 	
 func pop_back() -> Variant:
-	return values.pop_back()
+	var value: Variant = back()
+	hashset.erase(value)
+	
+	return value
 
 
 func pop_front() -> Variant:
-	return values.pop_front()
+	var value: Variant = front()
+	hashset.erase(value)
+	
+	return value
 
 
 func clear() -> void:
-	values.clear()
+	hashset.clear()
