@@ -20,7 +20,7 @@ func add(value: Variant) -> bool:
 	
 
 func duplicate() -> OmniKitHashSet:
-	return OmniKitHashSet.new(hashset.duplicate().keys())
+	return OmniKitHashSet.new(hashset.keys().duplicate())
 
 
 func remove(value: Variant) -> bool:
