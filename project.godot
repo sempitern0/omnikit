@@ -14,7 +14,7 @@ config/name="OmniKit"
 config/description="General utilities that does not belongs to a particular place and are sed as static classes that can be accessed at any time even if they are not in the scene tree."
 config/version="1.2.5"
 config/features=PackedStringArray("4.5", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="uid://ceeyh135twaqe"
 
 [autoload]
 
