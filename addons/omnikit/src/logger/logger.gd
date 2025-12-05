@@ -29,18 +29,31 @@ static var _queue_size: int:
 
 static var _log_path: String
 static var _is_valid: bool = false
+static var current_logger: OmnikitLogger
 
 
 static func _static_init() -> void:
+	enable()
+
+
+static func enable() -> void:
 	_log_path = _create_log_file()
 	_message_queue.resize(MaxQueueSize)
 	_is_valid = not _log_path.is_empty() and _message_queue.size() == MaxQueueSize
-	
-	OS.add_logger(OmnikitLogger.new())
+	current_logger = OmnikitLogger.new()
+	OS.add_logger(current_logger)
+
+
+static func disable() -> bool:
+	if current_logger:
+		OS.remove_logger(current_logger)
+		return true
+		
+	return false
 
 
 static func _create_log_file() -> String:
-	var file_name: String = Time.get_datetime_string_from_system() + FileExtension
+	var file_name: String = Time.get_date_string_from_system() + FileExtension
 	var file_path: String = DefaultFilePath + "/%s" % file_name
 	var file: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
 
@@ -144,7 +157,7 @@ func _log_message(message: String, is_error: bool) -> void:
 
 static func _format_log_message(message: String, event: Event) -> String:
 	return "[{time}] {event}: {message}".format({
-		"time": Time.get_time_string_from_system(),
+		"time": Time.get_datetime_string_from_system(),
 		"event": _event_strings[event],
 		"message": message,
 	})
