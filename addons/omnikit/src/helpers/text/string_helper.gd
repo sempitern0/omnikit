@@ -192,10 +192,7 @@ static func is_whitespace(text: String) -> bool:
 	var whitespace_regex: RegEx = RegEx.new()
 	whitespace_regex.compile(r"\s+")
 	
-	if whitespace_regex.search(text):
-		return true
-	
-	return false
+	return whitespace_regex.search(text) != null
 	
 	
 static func remove_whitespaces(text: String) -> String:

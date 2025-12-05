@@ -6,11 +6,17 @@ signal connected_to_server()
 signal connection_failed_to_server()
 signal server_disconnected()
 
+signal create_server_error(error: Error)
+signal join_client_error(error: Error)
+
 const DefaultServerPort: int = 42069
 const DefaultBroadcastPort: int = 42070
 const DefaultBroadcastListenPort: int = 42071
 const DefaultBroadcastAddress: String = "255.255.255.255"
 const DefaultDNSPort: int = 53
+const MinPort = 1024 # Avoid privileged & reserved ports (0-1023)
+const MaxPort: int = pow(2, 16) - 1 ## 65535
+const DefaultMaxServerPlayers: int = 32
 
 const GoogleHost: String = "8.8.8.8"
 const CloudFlareHost: String = "1.1.1.1"
@@ -21,6 +27,15 @@ const DefaultPingURLs: Array[String] = [
 		"https://www.cloudflare.com/cdn-cgi/trace",
 		"https://example.com"
 ]
+
+
+
+enum NetworkType {
+	## Game within the same local area network (LAN)
+	LocalAreaNetwork,
+	## Game over the Internet (using relays/servers).
+	Global
+}
 
 var broadcaster: PacketPeerUDP
 var broadcast_listener: PacketPeerUDP
@@ -46,10 +61,8 @@ func _exit_tree() -> void:
 	end()
 
 
-func ping(urls: Array[String] = DefaultPingURLs, request_timeout: int = 5) -> bool:
+func ping(urls: Array[String] = DefaultPingURLs) -> bool:
 	var http_request: HTTPRequest = HTTPRequest.new()
-	http_request.timeout = request_timeout
-
 	## Used Array as GDScript pass them as reference on parameters, so it can be mutated inside the closure
 	var internet_connection: Array[bool] = [false] 
 	
@@ -73,34 +86,32 @@ func ping(urls: Array[String] = DefaultPingURLs, request_timeout: int = 5) -> bo
 	return internet_connection[0]
 
 
-func start_server(port: int =  DefaultServerPort, max_players: int = 32) -> void:
+func start_server(port: int =  DefaultServerPort, max_players: int = DefaultMaxServerPlayers) -> void:
 	peer = ENetMultiplayerPeer.new()
 	var server_error: Error = peer.create_server(port, max_players)
 	
 	if server_error != OK:
-		var error: String = "OmniKitNetworkHandler->start_server: An error [%d | %s] happened creating the server, aborting..." % [server_error, error_string(server_error)]
-		push_error(error)
-		OmnikitLogger.error(error)
+		push_error("OmniKitNetworkHandler->start_server: An error [%d | %s] happened trying to create server, aborting..." % [server_error, error_string(server_error)])
+		create_server_error.emit(server_error)
 		return
 		
 	multiplayer.multiplayer_peer = peer
+	
 	multiplayer.peer_connected.connect(on_client_connected)
 	multiplayer.peer_disconnected.connect(on_client_disconnected)
 
 
-func start_client(ip: String = LocalHost, port: int = DefaultServerPort, compression_mode: ENetConnection.CompressionMode = ENetConnection.COMPRESS_RANGE_CODER) -> void:
+func start_client(ip: String = LocalHost, port: int = DefaultServerPort) -> void:
 	peer = ENetMultiplayerPeer.new()
 	var client_error: Error = peer.create_client(ip, port)
 	
 	if client_error != OK:
-		var error: String = "OmniKitNetworkHandler->start_client: An error [%d | %s] happened creating the server, aborting..." % [client_error, error_string(client_error)]
-		push_error(error)
-		OmnikitLogger.error(error)
+		push_error("OmniKitNetworkHandler->start_server: An error [%d | %s] happened trying to create server, aborting..." % [client_error, error_string(client_error)])
+		join_client_error.emit(client_error)
 		return
-	
-	peer.get_host().compress(compression_mode)
-	
+		
 	multiplayer.multiplayer_peer = peer
+	
 	multiplayer.peer_connected.connect(on_client_connected)
 	multiplayer.peer_disconnected.connect(on_client_disconnected)
 	multiplayer.connected_to_server.connect(on_connected_to_server)
@@ -110,17 +121,16 @@ func start_client(ip: String = LocalHost, port: int = DefaultServerPort, compres
 
 func start_broadcast(broadcast_port: int = DefaultBroadcastPort, dest_port: int = DefaultBroadcastListenPort, bind_address: String = "0.0.0.0") -> void:
 	_create_broadcast_timer()
-		
+
 	broadcaster = PacketPeerUDP.new()
-	
 	broadcaster.set_broadcast_enabled(true)
 	broadcaster.set_dest_address(current_broadcast_address, dest_port)
 	var binded_port_error: Error =  broadcaster.bind(broadcast_port, bind_address)
 	
 	if binded_port_error == OK:
-		print("OmniKitNetworkHandler: Broadcast port %d binded with success " % broadcast_port)
+		print("OmniKitLocalNetworkHandler: Broadcast port %d binded with success " % broadcast_port)
 	else:
-		push_error("OmniKitNetworkHandler: An error %s happened when binding port on broadcast %d" % [error_string(binded_port_error), broadcast_port])
+		push_error("OmniKitLocalNetworkHandler: An error %s happened when binding port on broadcast %d" % [error_string(binded_port_error), broadcast_port])
 		
 	broadcast_timer.start(broadcast_emission_interval)
 
@@ -133,13 +143,13 @@ func start_broadcast_listener(listen_port: int = DefaultBroadcastListenPort, bin
 		broadcast_listener.close()
 	else:
 		broadcast_listener = PacketPeerUDP.new()
-	
+		
 	var binded_port_error: Error =  broadcast_listener.bind(listen_port, bind_address)
 	
 	if binded_port_error == OK:
-		print("OmniKitNetworkHandler: Listener broadcast port %d binded with success " % listen_port)
+		print("OmniKitLocalNetworkHandler: Listener broadcast port %d binded with success " % listen_port)
 	else:
-		push_error("OmniKitNetworkHandler: An error %s happened when binding port on broadcast listener %d" % [error_string(binded_port_error), listen_port])
+		push_error("OmniKitLocalNetworkHandler: An error %s happened when binding port on broadcast listener %d" % [error_string(binded_port_error), listen_port])
 		
 	return broadcast_listener
 
@@ -171,7 +181,7 @@ func end_broadcast_listener() -> void:
 func _create_broadcast_timer() -> void:
 	if not is_instance_valid(broadcast_timer):
 		broadcast_timer = Timer.new()
-		broadcast_timer.name = "OmniKitNetworkHandlerBroadcastTimer"
+		broadcast_timer.name = "OmniKitLocalNetworkHandlerBroadcastTimer"
 		broadcast_timer.process_callback = Timer.TIMER_PROCESS_IDLE
 		broadcast_timer.autostart = false
 		broadcast_timer.one_shot = false
@@ -181,30 +191,24 @@ func _create_broadcast_timer() -> void:
 
 func validate_ipv4(ip: String) -> bool:
 	var ipv4_regex: RegEx = RegEx.new()
-	var valid: Error = ipv4_regex.compile(r"^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$")
+	var compiled: Error = ipv4_regex.compile(r"^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$")
 	
-	if valid == OK:
-		return ipv4_regex.search(ip) != null
-	
-	return false
-	
+	return compiled == OK and ipv4_regex.search(ip) != null
+
 
 func validate_ipv6(ip: String) -> bool:
 	var ipv6_regex: RegEx = RegEx.new()
-	var valid: Error = ipv6_regex.compile(r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
+	var compiled: Error = ipv6_regex.compile(r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
 	
-	if valid == OK:
-		return ipv6_regex.search(ip) != null
-	
-	return false
+	return compiled == OK and ipv6_regex.search(ip) != null
 	
 	
 func port_in_valid_range(port: int) -> bool:
-	return OmniKitMathHelper.value_is_between(port, 1, pow(2, 16) - 1) ## 65536 - 1
+	return OmniKitMathHelper.value_is_between(port, MinPort, MaxPort)
 
 
-func random_port() -> int:
-	return randi_range(1, 65535)
+func random_port(include_reserved_ports: bool = false) -> bool:
+	return randi_range(1 if include_reserved_ports else MinPort, MaxPort)
 
 
 func get_local_ips() -> Array[String]:
@@ -222,29 +226,7 @@ func get_local_ips() -> Array[String]:
 	
 	return valid_addreses
 	
-## Hostnames are only usable when on LAN, they are not reachable on the internet.
-func hostname() -> String:
-	if OmniKitHardwareDetector.is_android():
-		var output: Array = []
-		OS.execute("getprop" , ["net.hostname"], output, false)
-		
-		if output.is_empty():
-			return ""
-		
-		return var_to_str(output)
-	
-	var environment_vars: Array[String] = ["HOSTNAME", "COMPUTERNAME", "USERNAME", "USER"]
-	
-	for env_var: String in environment_vars:
-		var env_hostname: String = OS.get_environment(env_var)
-		
-		if not env_hostname.is_empty():
-			return env_hostname
 
-	## Not the configured hostname by the user but allows you to at least identify the device
-	return OS.get_model_name()
-		
-		
 func get_local_ip(ip_type: IP.Type = IP.Type.TYPE_IPV4) -> String:
 	var local_ips: Array[String] = get_local_ips()
 	
@@ -267,9 +249,9 @@ func get_broadcast_address(local_ip: String, use_localhost: bool = false) -> Str
 func is_valid_url(url: String) -> bool:
 	var regex = RegEx.new()
 	var url_pattern = "/(https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z]{2,}(\\.[a-zA-Z]{2,})(\\.[a-zA-Z]{2,})?\\/[a-zA-Z0-9]{2,}|((https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z]{1,}(\\.[a-zA-Z]{2,})(\\.[a-zA-Z]{2,})?)|(https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z0-9]{2,}\\.[a-zA-Z0-9]{2,}\\.[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,})?/g"
-	regex.compile(url_pattern)
+	var compiled: Error = regex.compile(url_pattern)
 	
-	return regex.search(url) != null
+	return compiled == OK and regex.search(url) != null
 
 
 func open_external_link(url: String) -> void:
