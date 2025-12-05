@@ -1,6 +1,42 @@
 class_name OmniKitGeometryHelper
 
 
+## Calculates the arrangement of a specified MeshInstance3D within a BoxShape3D.
+## It determines how many meshes fit horizontally and vertically, and returns
+## a dictionary containing the total count and the precise world positions (slots)
+## for each potential mesh instance.
+static func calculate_mesh_arrangement_on_box_shape(box: BoxShape3D, mesh_instance: MeshInstance3D, spacing: Vector3 = Vector3.ZERO, stack_horizontal: bool = true, stack_vertical: bool = false) -> Dictionary:
+	assert(mesh_instance.mesh != null, "OmniKitGeometryHelper->calculate_mesh_arrangement_on_box_shape: The MeshInstance3D does not have a mesh assigned")
+		
+	var slots: Array = [] ## Array[Array[Vector3]] # Positions per row
+	var mesh_size: Vector3 = (mesh_instance.get_aabb().size * mesh_instance.scale) + spacing
+
+	var meshes_per_row: int = floori(box.shape.size.x / mesh_size.z)
+	var rows: int = floori(box.shape.size.z / mesh_size.x)
+	var initial_row_position: Vector3 = Vector3.LEFT * (box.shape.size.x / 2.0 - mesh_size.z / 2.0) 
+	
+	for row in rows:
+		slots.append([])
+
+		for mesh_index: int in meshes_per_row:
+			var mesh_position: Vector3 = Vector3.ZERO + initial_row_position + Vector3.RIGHT * mesh_size.z * mesh_index
+			
+			if stack_horizontal:
+				mesh_position.z += mesh_size.x * row
+			
+			if stack_vertical:
+				mesh_position.y += mesh_size.y * row
+			
+			slots[row].append(mesh_position)
+
+	return {
+		"meshes_per_row": meshes_per_row,
+		"rows": rows,
+		"total": meshes_per_row * rows,
+		"slots": slots
+		}
+
+
 static func get_random_mesh_surface_position(target: MeshInstance3D) -> Vector3:
 	if target.mesh:
 		var target_mesh_faces = target.mesh.get_faces()
