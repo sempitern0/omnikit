@@ -15,6 +15,16 @@ static func renderer() -> String:
 	return str(ProjectSettings.get_setting_with_override("rendering/renderer/rendering_method"))
 
 
+static func renderer_driver() -> String:
+	match renderer():
+		"forward_plus", "mobile":
+			return ProjectSettings.get_setting_with_override("rendering/rendering_device/driver")
+		"gl_compatibility":
+			return ProjectSettings.get_setting_with_override("rendering/gl_compatibility/driver")
+
+	return ""
+
+
 static func is_multithreading_enabled() -> bool:
 	return ProjectSettings.get_setting("rendering/driver/threads/thread_model") == 2
 
@@ -38,7 +48,7 @@ static func renderer_is_mobile() -> bool:
 static func has_fsr() -> bool:
 	return OS.has_feature("fsr")
 
-		
+
 static func is_steam_deck() -> bool:
 	return OmniKitStringHelper.equals_ignore_case(distribution_name, "SteamOS") \
 		or video_adapter_name.containsn("radv vangogh") \
@@ -71,12 +81,24 @@ static func is_desktop() -> bool:
 	
 	
 static func is_windows() -> bool:
-	return OS.get_name() in ["Windows", "UWP"] or (is_web() and OS.has_feature("web_windows"))
+	return OS.get_name() in ["Windows", "UWP"]
 
 
 static func is_linux() -> bool:
-	return OS.get_name() in ["Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD"] or (is_web() and OS.has_feature("web_linuxbsd"))
+	return OS.get_name() in ["Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD"]
 	
 		
 static func is_mac() -> bool:
-	return OS.get_name() == "macOS" or (is_web() and OS.has_feature("web_macos"))
+	return OS.get_name() == "macOS"
+
+
+static func is_windows_web() -> bool:
+	return is_web() and OS.has_feature("web_windows")
+
+
+static func is_linux_web() -> bool:
+	return is_web() and OS.has_feature("web_linuxbsd")
+	
+		
+static func is_mac_web() -> bool:
+	return is_web() and OS.has_feature("web_macos")
