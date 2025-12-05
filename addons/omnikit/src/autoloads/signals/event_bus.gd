@@ -64,7 +64,6 @@ func unsubscribe(event: StringName, method: Callable) -> void:
 	if events.has(event):
 		events[event] = events[event]\
 			.filter(func(listener: EventListener): return listener.id != method.get_object_id())
-		print(events[event])
 
 
 func publish(event: StringName, ...payload) -> void:
@@ -80,9 +79,7 @@ func publish(event: StringName, ...payload) -> void:
 					subscriber.call_method(payload)
 			
 			record_event(event, subscriber)
-
-	print(event_history)
-	
+			
 	
 func record_event(event: StringName, subscriber: EventListener) -> void:
 	if max_event_history_length > 0:
