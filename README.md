@@ -905,59 +905,73 @@ Functions to obtain information on sizes, measurements or to draw specific shape
 
 ```swift
 // Shorcuts to create a MeshInstance3D with a specific mesh shape
-func create_plane_mesh(size: Vector2 = Vector2.ONE) -> MeshInstance3D
+static func create_plane_mesh(size: Vector2 = Vector2.ONE) -> MeshInstance3D
 
-func create_quad_mesh(size: Vector2 = Vector2.ONE) -> MeshInstance3D
+static func create_quad_mesh(size: Vector2 = Vector2.ONE) -> MeshInstance3D
 
-func create_prism_mesh(size: Vector3 = Vector3.ONE, left_to_right: float = 0.5) -> MeshInstance3D
+static func create_prism_mesh(size: Vector3 = Vector3.ONE, left_to_right: float = 0.5) -> MeshInstance3D
 
-func create_cilinder_mesh(height: float = 2.0, top_radius: float = 0.5, bottom_radius: float = 0.5) -> MeshInstance3D
+static func create_cilinder_mesh(height: float = 2.0, top_radius: float = 0.5, bottom_radius: float = 0.5) -> MeshInstance3D
 
-func create_sphere_mesh(height: float = 2.0, radius: float = 0.5, is_hemisphere: bool = false) -> MeshInstance3D
+static func create_sphere_mesh(height: float = 2.0, radius: float = 0.5, is_hemisphere: bool = false) -> MeshInstance3D
 
-func create_capsule_mesh(height: float = 2.0, radius: float = 0.5) -> MeshInstance3D
+static func create_capsule_mesh(height: float = 2.0, radius: float = 0.5) -> MeshInstance3D
 
+
+// Calculates the arrangement of a specified MeshInstance3D within a BoxShape3D.
+// It determines how many meshes fit horizontally and vertically, and returns
+// a dictionary containing the total count and the precise world positions (slots)
+// for each potential mesh instance.
+/**
+{
+		"meshes_per_row".
+		"rows",
+		"total",
+		"slots" ## Array[Array[Vector3]] Positions per row
+		}
+**/
+static func calculate_mesh_arrangement_on_box_shape(box: BoxShape3D, mesh_instance: MeshInstance3D, spacing: Vector3 = Vector3.ZERO, stack_horizontal: bool = true, stack_vertical: bool = false) -> Dictionary:
 
 // Get a random position as `Vector3` on any mesh shape surface
-func get_random_mesh_surface_position(target: MeshInstance3D) -> Vector3
+static func get_random_mesh_surface_position(target: MeshInstance3D) -> Vector3
 
 // Get a random position as `Vector2` from the inside of a circle with the given `radius`
-func random_inside_unit_circle(position: Vector2, radius: float = 1.0) -> Vector
+static func random_inside_unit_circle(position: Vector2, radius: float = 1.0) -> Vector
 
 // Get a random position as `Vector2` from a circunference
-func random_on_unit_circle(position: Vector2) -> Vector2
+static func random_on_unit_circle(position: Vector2) -> Vector2
 
 // Get a random point as Vector2 in the provided Rect2
-func random_point_in_rect(rect: Rect2) -> Vector2
+static func random_point_in_rect(rect: Rect2) -> Vector2
 
 // Get a random point as Vector2 in annulus _(a donut shape)_ with provided center and radius provided
-func random_point_in_annulus(center, radius_small, radius_large) -> Vector2
+static func random_point_in_annulus(center, radius_small, radius_large) -> Vector2
 
 // Get the bounding box as `Rect2` from the polygon points provided
-func polygon_bounding_box(polygon: PackedVector2Array) -> Rect2
+static func polygon_bounding_box(polygon: PackedVector2Array) -> Rect2
 
-func is_valid_polygon(points: PackedVector2Array) -> bool
+static func is_valid_polygon(points: PackedVector2Array) -> bool
 
-func calculate_polygon_area(polygon: PackedVector2Array) -> float
+static func calculate_polygon_area(polygon: PackedVector2Array) -> float
 
-func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array
+static func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array
 
 // https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
-func segment_circle_intersects(start, end, center, radius) -> Array
+static func segment_circle_intersects(start, end, center, radius) -> Array
 
 // Returns intersection point(s) of a segment from 'a' to 'b' with a given rect, in order of increasing distance from 'a'
-func segment_rect_intersects(a, b, rect) -> Array
+static func segment_rect_intersects(a, b, rect) -> Array
 
 // https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Rectangle_difference
-func rect_difference(r1: Rect2, r2: Rect2) -> Array
+static func rect_difference(r1: Rect2, r2: Rect2) -> Array
 
-func volume_of_sphere(radius: float) -> float
+static func volume_of_sphere(radius: float) -> float
 
-func volume_of_hollow_sphere(outer_radius: float, inner_radius: float) -> float
+static func volume_of_hollow_sphere(outer_radius: float, inner_radius: float) -> float
 
-func area_of_circle(radius: float) -> float
+static func area_of_circle(radius: float) -> float
 
-func area_of_triangle(base: float, perpendicular_height: float) -> float
+static func area_of_triangle(base: float, perpendicular_height: float) -> float
 ```
 
 ## Hardware detector 💻
@@ -997,6 +1011,12 @@ static func is_mac() -> bool
 static func is_desktop() -> bool
 
 static func is_web() -> bool
+
+static func is_windows_web() -> bool
+
+static func is_linux_web() -> bool
+		
+static func is_mac_web() -> bool
 ```
 
 ### Project settings
@@ -1005,6 +1025,9 @@ Useful methods to detect Godot project settings related to renderer.
 ```swift
 // Returns the rendering method that this Godot project is using (Forward+, Compatibility or Mobile)
 static func renderer() -> String
+
+// Returns the renderer driver, Vulkan or OpenGL.
+static func renderer_driver() -> String
 
 static func renderer_is_forward() -> bool
 
