@@ -99,7 +99,7 @@ func to_utf8() -> String:
 	var file = FileAccess.open(OS.get_user_data_dir() + "/bitstream.dat", FileAccess.WRITE_READ)
 	file.store_buffer(byte_array)
 	
-	var utf8_string = file.get_as_text(false)
+	var utf8_string = file.get_as_text()
 	file.close()
 	
 	return utf8_string

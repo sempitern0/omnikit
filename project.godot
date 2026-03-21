@@ -8,20 +8,24 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="OmniKit"
 config/description="General utilities that does not belongs to a particular place and are sed as static classes that can be accessed at any time even if they are not in the scene tree."
 config/version="1.2.5"
-config/features=PackedStringArray("4.5", "GL Compatibility")
-config/icon="uid://ceeyh135twaqe"
+config/features=PackedStringArray("4.6", "GL Compatibility")
+config/icon="uid://jln0u7ian26u"
 
 [autoload]
 
-OmniKitWindowManager="*res://addons/omnikit/src/autoloads/viewport/window_manager.gd"
-OmniKitNetworkHandler="*res://addons/omnikit/src/autoloads/network/network_handler.gd"
-OmniKitGamepadControllerManager="*res://addons/omnikit/src/autoloads/gamepad/gamepad_controller_manager.gd"
-OmniKitEventBus="*res://addons/omnikit/src/autoloads/signals/event_bus.gd"
+OmniKitWindowManager="*uid://da7eswtcbmxi0"
+OmniKitNetworkHandler="*uid://c4u82u2tcol30"
+OmniKitGamepadControllerManager="*uid://7xfpq4t0wvte"
+OmniKitEventBus="*uid://bkr7j5nn8sfsh"
 
 [editor_plugins]
 

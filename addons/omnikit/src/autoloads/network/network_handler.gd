@@ -29,7 +29,6 @@ const DefaultPingURLs: Array[String] = [
 ]
 
 
-
 enum NetworkType {
 	## Game within the same local area network (LAN)
 	LocalAreaNetwork,
@@ -78,7 +77,7 @@ func ping(urls: Array[String] = DefaultPingURLs) -> bool:
 			func(_result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray):
 				internet_connection[0] = (result == Error.OK and response_code in [200, 204])
 				,CONNECT_ONE_SHOT)
-				
+		
 		await http_request.request_completed
 	
 	http_request.queue_free()
